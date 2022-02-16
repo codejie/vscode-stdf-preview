@@ -11,6 +11,7 @@
 	],
 	"activationEvents": [
         "onCommand:vscode-stdf-preview.helloWorld",
+		"onCommand:stdf.preview",
 		"onLanguage:stdf"
 	],
 	"main": "./out/extension.js",
