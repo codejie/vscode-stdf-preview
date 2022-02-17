@@ -2,6 +2,7 @@
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
 import { DataPriview } from './data-preview';
+import { TestView } from './test-panel';
 import { Template } from './view-template';
 
 // this method is called when your extension is activated
@@ -30,10 +31,11 @@ export function activate(context: vscode.ExtensionContext) {
 
 	let cmd = vscode.commands.registerCommand('stdf.preview', (args) => {
 		console.log(args);
-		const view: DataPriview = new DataPriview();
-		const panel: vscode.WebviewPanel =  view.initWebview('stdf.preview', vscode.ViewColumn.One, undefined, viewTemplate);
-		return panel.webview;
-	})
+		return new TestView(undefined, context.extensionUri, vscode.ViewColumn.One).viewPanel;
+		// const view: DataPriview = new DataPriview();
+		// const panel: vscode.WebviewPanel =  view.initWebview('stdf.preview', vscode.ViewColumn.One, undefined, viewTemplate);
+		// return panel.webview;
+	});
 	context.subscriptions.push(cmd);
 
 	context.subscriptions.push(disposable);

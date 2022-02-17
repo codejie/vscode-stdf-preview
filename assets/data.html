@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta http-equiv="Content-Security-Policy" 
+      content="default-src * {cspSource} https: 'unsafe-inline' 'unsafe-eval';
+        script-src {cspSource} blob: data: https: 'unsafe-inline' 'unsafe-eval';
+        style-src {cspSource} https: 'unsafe-inline';
+        img-src {cspSource} data: https:;
+        connect-src {cspSource} blob: data: https: http:;">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Data Preview">
+    <base href="https://github.com/RandomFractals/vscode-data-preview" target="_blank" />
+    <title>Data Preview</title>
+    <link rel="stylesheet" href="{styles}/perspective-viewer/{theme}.css">
+    <link rel="stylesheet" href="{styles}/data.view.css">
+    <script src="{scripts}/perspective.js"></script>
+    <script src="https://unpkg.com/@finos/perspective-viewer@0.4.0/dist/umd/perspective-viewer.js"></script>
+    <script src="{scripts}/perspective-viewer-hypergrid.js"></script>
+    <script src="{scripts}/perspective-viewer-{charts}.js"></script>
+  </head>
+  <body>
+    <div id="toolbar">
+      <div id="toolbar-right">
+        <select id="save-file-type-selector" 
+          title="Save Data View .config or Data" 
+          onChange="saveData()">
+          <option value="">📥&nbsp;Save</option>
+          <option value=".config">⚙️ &nbsp;config</option>
+          <option value=".arrow">⋙ arrow</option>
+          <option value=".csv">,,, csv</option>
+          <option value=".json">{} &nbsp;json</option>
+          <option value=".json5">{} &nbsp;json5</option>
+          <option value=".hjson">{} &nbsp;hjson</option>
+          <option value=".html">&lt;&gt;html</option>
+          <option value=".md">⇩ &nbsp;md</option>
+          <option value=".ods">⊞ ods</option>
+          <option value=".xml">&lt;&gt;xml</option>
+          <option value=".xlsb">⊞ xlsb</option>
+          <option value=".xlsx">⊞ xlsx</option>
+          <option value=".yml">&nbsp;!&nbsp; yml</option>
+          <option value=".properties">= &nbsp;properties</option>
+        </select>
+        <a id="help-button" title="Data Preview Help" href="#"
+          style="color: orange;"
+          onClick="loadHelp()">?</a>
+        <a id="buy-coffee-button" title="Buy Coffee" href="#"
+          style="color: orangered; font-weight: bold" 
+          onclick="buyCoffee()">&nbsp;☕️&nbsp;</a>
+      </div>
+      <div id="toolbar-left">
+        <a id="data-preview-button" title="Launch new Data Preview" href="#" 
+          onClick="loadDataPreview()">
+          <span id="data-preview-icon">🈸</span>
+        </a>
+        <a id="data-view-log-button" title="View Data Console Log" href="#" 
+          onClick="toggleDataViewConsoleDisplay()">
+          <span class="label">&gt;</span>
+        </a>
+        <a id="view-data-source-button" title="View Data Source" href="#" 
+          onClick="viewDataSource()">
+          <span class="label">☲</span>
+        </a>
+        <a id="title" title="Load Data View .config" href="#" 
+          onClick="loadConfig()">{title}</a>
+        <select id="table-selector" title="Select Data Table" 
+          style="display: none;" 
+          onChange="loadTableData()">
+        </select>
+        <!-- |
+        <a title="Undo" href="#" onclick="undoConfig()"> ↩ </a>
+        <a title="Redo" href="#" onclick="redoConfig()"> ↪ </a>
+        -->
+        <a id="refresh-data-button" title="Refresh Data" href="#"
+          style="color: orange;"
+          onclick="reloadData()">🔃</a>
+        <a id="open-file-button" title="Open Data File" href="#" 
+          onClick="openFile()">📤</a>
+        <input id="data-url-input" type="text" title="Enter new Data File Path or URL to Preview"
+          onKeyPress="loadDataPreviewForUrl()" />
+      </div>
+    </div>
+    <textarea id="data-view-console-text" readonly="readonly" title="Data View Console">&gt;&nbsp;</textarea>
+    <perspective-viewer id="data-viewer" plugin="hypergrid" editable="true" selectable="true"
+      style="--select--background-color: {themeColor}"></perspective-viewer>
+    <script type="text/javascript" src="{scripts}/data.view.js"></script>
+  </body>
+</html>

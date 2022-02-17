@@ -23,8 +23,9 @@ export class DataPriview {
                     vscode.Uri.file(path.join(__dirname, './assets/styles')),
                     vscode.Uri.file(path.join(__dirname, './assets/scripts'))
                 ]
-            }
+            };
             panel = vscode.window.createWebviewPanel(type, 'STDF View Panel', column, options);
+            panel.webview.html = template.content;
         }
         return panel;
     }
