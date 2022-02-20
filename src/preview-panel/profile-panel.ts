@@ -2,13 +2,14 @@ import * as vscode from 'vscode';
 import { PreviewPanel } from ".";
 
 export default class ProfileViewPanel extends PreviewPanel {
-    constructor(uri: vscode.Uri, name?: string, column?: vscode.ViewColumn) {
+    constructor(uri: vscode.Uri, name?: string, column?: vscode.ViewColumn, status?: vscode.StatusBarItem) {
         super({
             uri: uri,
             name: name || 'ProfileView',
             column: column || vscode.ViewColumn.One,
             type: 'profile_type',
-            resourcePath: ['grid']
+            resourcePath: ['grid'],
+			status: status
         });
     }
 

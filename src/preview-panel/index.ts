@@ -6,7 +6,8 @@ export interface PreviewPanelOptions {
     resourcePath: string[],
 
     name: string,
-    column: vscode.ViewColumn
+    column: vscode.ViewColumn,
+    status?: vscode.StatusBarItem
 }
 
 export abstract class PreviewPanel {
@@ -21,8 +22,20 @@ export abstract class PreviewPanel {
         );
 
         this.panel.onDidDispose(() => {
+            this.hideStatus();
+            this.panel.dispose();
             vscode.window.showErrorMessage('CLOSED');
         });
+
+        this.panel.onDidChangeViewState((event) => {
+            const actived = event.webviewPanel.active;
+            if (actived) {
+                this.showStatus();
+            } else {
+                this.hideStatus();
+            }
+        });
+
         this.panel.webview.html = this.getHtml();
     }
 
@@ -39,6 +52,20 @@ export abstract class PreviewPanel {
             enableFindWidget: true,
             localResourceRoots: res
         };
+    }
+
+    private hideStatus(): void {
+        if (this.opts.status) {
+            this.opts.status.text = '';
+            this.opts.status.hide();
+        }
+    }
+
+    private showStatus(): void {
+        if (this.opts.status) {
+            this.opts.status.text = 'STDF';
+            this.opts.status.show();
+        }
     }
 
     public get viewPanel(): vscode.WebviewPanel {
