@@ -1,5 +1,5 @@
 {
-  "name": "vscode-stdf-preview",
+	"name": "vscode-stdf-preview",
 	"displayName": "STDF Preview",
 	"description": "vscode extension to preview STDF files.",
 	"version": "0.0.1",
@@ -10,8 +10,10 @@
 		"Other"
 	],
 	"activationEvents": [
-        "onCommand:vscode-stdf-preview.helloWorld",
-		"onCommand:stdf.preview",
+		"onCommand:vscode-stdf-preview.helloWorld",
+		"onCommand:stdf.profile.preview",
+		"onCommand:stdf.detail.preview",
+		"onCommand:stdf.shift.preview",
 		"onLanguage:stdf"
 	],
 	"main": "./out/extension.js",
@@ -28,41 +30,53 @@
 					"STDF"
 				]
 			}
-		],		
+		],
 		"commands": [
 			{
 				"command": "vscode-stdf-preview.helloWorld",
 				"title": "Hello World"
 			},
 			{
-				"command": "stdf.preview",
-				"title": "Preview",
+				"command": "stdf.profile.preview",
+				"title": "Profile Preview",
 				"category": "STDF",
 				"icon": "$(symbol-keyword)"
-			}
+			},
+			{
+				"command": "stdf.detail.preview",
+				"title": "Detail Preview",
+				"category": "STDF",
+				"icon": "$(symbol-keyword)"
+			},
+			{
+				"command": "stdf.shift.preview",
+				"title": "Shift Preview",
+				"category": "STDF",
+				"icon": "$(symbol-keyword)"
+			}			
 		],
 		"menus": {
 			"explorer/context": [
 				{
-					"command": "stdf.preview",
+					"command": "stdf.profile.preview",
 					"when": "resourceFilename =~ /.*\\.(std|stdf)/",
-					"group": "navigation"
-				}
-			],
+					"group": "navigation@1"
+				},
+				{
+					"command": "stdf.detail.preview",
+					"when": "resourceFilename =~ /.*\\.(std|stdf)/",
+					"group": "navigation@2"
+				}				
+			],			
 			"editor/title": [
 				{
-					"command": "stdf.preview",
+					"command": "stdf.shift.preview",
 					"when": "resourceFilename =~ /.*\\.(std|stdf)/",
-					"group": "navigation"
-				}			
+					"group": "navigation@1"
+				}
 			]
 		},
-		"keybindings": [
-			{
-				"command": "stdf.preview",
-				"key": "ctrl+shift+p"
-			}
-		]	
+		"keybindings": []
 	},
 	"scripts": {
 		"vscode:prepublish": "npm run compile",

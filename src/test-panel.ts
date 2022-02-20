@@ -68,12 +68,15 @@ export class TestView {
 				<link href="${styleMainUri}" rel="stylesheet"/>
 			</head>
 			<body>
+				<div>
+					<button class="btn">BUTTON</button>
+				</div>
 				<div id="wrapper"></div>
 			
 				<script src=${perspectiveUri}></script>
 				<script type="text/javascript" src="${scriptUri}"></script>
 			</body>
-			</html>		
+			</html>
 		`;
 
 		// return `<!DOCTYPE html>

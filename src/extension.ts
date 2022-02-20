@@ -2,6 +2,7 @@
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
 import { DataPriview } from './data-preview';
+import ProfileViewPanel from './preview-panel/profile-panel';
 import { TestView } from './test-panel';
 import { Template } from './view-template';
 
@@ -29,9 +30,11 @@ export function activate(context: vscode.ExtensionContext) {
 		console.log(context);
 	});
 
-	let cmd = vscode.commands.registerCommand('stdf.preview', (args) => {
+	let cmd = vscode.commands.registerCommand('stdf.profile.preview', (args) => {
 		console.log(args);
-		return new TestView(undefined, context.extensionUri, vscode.ViewColumn.One).viewPanel;
+		const panel = new ProfileViewPanel(context.extensionUri, 'PROFILE');
+		return panel.viewPanel;
+		// return new TestView(undefined, context.extensionUri, vscode.ViewColumn.One).viewPanel;
 		// const view: DataPriview = new DataPriview();
 		// const panel: vscode.WebviewPanel =  view.initWebview('stdf.preview', vscode.ViewColumn.One, undefined, viewTemplate);
 		// return panel.webview;
