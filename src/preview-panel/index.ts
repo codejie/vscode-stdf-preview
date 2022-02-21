@@ -1,5 +1,22 @@
 import * as vscode from 'vscode';
 
+interface ViewOptions {
+    options: vscode.WebviewPanelOptions & vscode.WebviewOptions,
+    html: string
+}
+
+interface ViewScripts {
+    [key: string]: ViewOptions
+};
+
+export enum ViewType {
+    profile = 'protile.type',
+    detail = 'detail.type'
+};
+
+export const ProfileView: string = 'profile.type';
+export const  
+
 export interface PreviewPanelOptions {
     uri: vscode.Uri,
     type: string,
@@ -11,6 +28,13 @@ export interface PreviewPanelOptions {
 }
 
 export abstract class PreviewPanel {
+    public static loadScripts(uri: vscode.Uri): ViewScripts {
+        const ret = {
+            `${ViewType.profile}`: 
+        }
+
+    }
+
     private panel: vscode.WebviewPanel;
 
     constructor(private opts: PreviewPanelOptions) {
@@ -77,4 +101,5 @@ export abstract class PreviewPanel {
     }
 
     abstract getHtml(): string;
+    abstract onArg(arg: any): Promise<void>;
 }
