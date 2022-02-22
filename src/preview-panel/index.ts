@@ -1,21 +1,22 @@
+import EventEmitter = require('events');
 import * as vscode from 'vscode';
 
-interface ViewOptions {
-    options: vscode.WebviewPanelOptions & vscode.WebviewOptions,
-    html: string
-}
+// interface ViewOptions {
+//     options: vscode.WebviewPanelOptions & vscode.WebviewOptions,
+//     html: string
+// }
 
-interface ViewScripts {
-    [key: string]: ViewOptions
-};
+// interface ViewScripts {
+//     [key: string]: ViewOptions
+// };
 
-export enum ViewType {
-    profile = 'protile.type',
-    detail = 'detail.type'
-};
+// export enum ViewType {
+//     profile = 'protile.type',
+//     detail = 'detail.type'
+// };
 
-export const ProfileView: string = 'profile.type';
-export const  
+// export const ProfileView: string = 'profile.type';
+// export const DetailView: string = 'detail.type'; 
 
 export interface PreviewPanelOptions {
     uri: vscode.Uri,
@@ -27,17 +28,16 @@ export interface PreviewPanelOptions {
     status?: vscode.StatusBarItem
 }
 
-export abstract class PreviewPanel {
-    public static loadScripts(uri: vscode.Uri): ViewScripts {
-        const ret = {
-            `${ViewType.profile}`: 
-        }
-
-    }
+export abstract class PreviewPanel extends EventEmitter {
 
     private panel: vscode.WebviewPanel;
 
     constructor(private opts: PreviewPanelOptions) {
+        super();
+        this.on('args', (args) => {
+            this.onArgs(args);
+        });
+
         this.panel = vscode.window.createWebviewPanel(
             opts.type,
             opts.name,
@@ -100,6 +100,26 @@ export abstract class PreviewPanel {
         return this.panel.webview.asWebviewUri(vscode.Uri.joinPath(this.opts.uri, file));
     }
 
+    onArgs(args: any): void {
+        vscode.window.withProgress({
+            location: vscode.ProgressLocation.Notification,
+            title: 'STDF file analysing..',
+            cancellable: true
+        }, (process, token) => {
+            token.onCancellationRequested((event) => {
+                this.emit('stop_request');
+            });
+            return this.onFile(args.path);
+            // process.report({ increment: 3 });
+            // return new Promise<void>((resolve, reject) => {
+
+            //     setTimeout(() => {
+            //         resolve();
+            //     }, 2000);
+            // });
+        });
+    }
+
     abstract getHtml(): string;
-    abstract onArg(arg: any): Promise<void>;
+    abstract onFile(path: string): Promise<void>;
 }

@@ -38,7 +38,7 @@ export default class DetailViewPanel extends PreviewPanel {
 		`;
     }
 
-	onArg(arg: any): Promise<void> {
+	onFile(path: string): Promise<void> {
 		throw new Error('Method not implemented.');
 	}
 }

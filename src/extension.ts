@@ -15,8 +15,6 @@ export function activate(context: vscode.ExtensionContext) {
 	// This line of code will only be executed once when your extension is activated
 	console.log('Congratulations, your extension "vscode-stdf-preview" is now active!');
 	const status = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 300);
-	const profileViewPanel: ProfileViewPanel = new ProfileViewPanel(context.extensionUri, vscode.ViewColumn.One, status);
-	const detailViewPanel: DetailViewPanel = new DetailViewPanel(context.extensionUri, vscode.ViewColumn.One, status);
 
 	// The command has been defined in the package.json file
 	// Now provide the implementation of the command with registerCommand
@@ -28,25 +26,16 @@ export function activate(context: vscode.ExtensionContext) {
 	// 	console.log(context);
 	// });
 	let profile = vscode.commands.registerCommand('stdf.profile.preview', async (args) => {
-		// try {
-		// 	await profileViewPanel.onArg(args);
-		// } catch (error) {
-		// 	vscode.window.showErrorMessage('cannot find view.');
-		// }
+		const profileViewPanel: ProfileViewPanel = new ProfileViewPanel(context.extensionUri, vscode.ViewColumn.One, status);
+		profileViewPanel.emit('args', args);
 		return profileViewPanel.viewPanel;
-		// profileViewPanel.onArg(args)
-		// 	.then(() => {
-		// 		return profileViewPanel.viewPanel;
-		// 	}).catch(error => {
-		// 		return detailViewPanel.viewPanel;
-		// 	});
 	});
 	context.subscriptions.push(profile);
 
 	let detail = vscode.commands.registerCommand('stdf.detail.preview', (args) => {
 		console.log(args);
-		// const detailViewPanel = new DetailViewPanel(context.extensionUri, vscode.ViewColumn.One, status);
-		// return detailViewPanel.viewPanel;
+		const detailViewPanel = new DetailViewPanel(context.extensionUri, vscode.ViewColumn.One, status);
+		return detailViewPanel.viewPanel;
 	});
 	context.subscriptions.push(detail);	
 

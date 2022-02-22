@@ -1,5 +1,8 @@
 import * as vscode from 'vscode';
+import * as fs from 'fs'
+import { STDFAnalyser } from 'stdf-analyser';
 import { PreviewPanel } from ".";
+import { RecordBase } from 'stdf-analyser/lib/record-define';
 
 export default class ProfileViewPanel extends PreviewPanel {
 
@@ -38,7 +41,38 @@ export default class ProfileViewPanel extends PreviewPanel {
 		`;
     }
 
-	onArg(arg: any): Promise<void> {
-		throw new Error('Method not implemented.');
+	async onFile(path: string): Promise<void> {
+		const analyser: STDFAnalyser = new STDFAnalyser({
+			included: ['MIR']
+		});
+
+		const input = fs.createReadStream(path);
+
+		for await (const chunk of input) {
+			await analyser.analyseSync(<Buffer>chunk, (record) => {
+				return this.onRecord(record);
+			})
+		}
+
+		return Promise.resolve();
 	}
+
+	onRecord(record: RecordBase): Promise<void> {
+		switch(record.name) {
+			case 'MIR':
+				return this.onMIR(record)
+		}
+		return Promise.resolve();
+	}
+
+	onMIR(record: RecordBase): Promise<void> {
+		this.viewPanel.webview.postMessage({
+			command: 'data',
+			data: ['1','2']
+		});
+		return Promise.resolve();
+		// record.fields
+		// throw new Error('Function not implemented.');
+	}	
 }
+
