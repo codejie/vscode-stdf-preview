@@ -1,23 +1,80 @@
 
 const vscode = acquireVsCodeApi();
 
-const grid = new gridjs.Grid({
-    columns: ['item', 'value'],
-    data: []
-    });
+// var gridData = [];
+
+console.log('====================');
+
+const components = initComponents();
+
+// Object.keys(components).forEach(key => {
+//     components[key].instance.updateConfig({columns: ['Item', 'Value', 'Item', 'Value'],data: []}).render(document.getElementById(key));    
+// });
 
 window.addEventListener('message', (event) => {
+    console.log('get event - ' + event.data.toString());
+    // console.log('get event - ' + event.data.command.toString());
+    // console.log('get event - ' + event.data.data.toString());
     switch (event.data.command) {
-        case 'data': {
-            onGridData(grid, event.data.data);
+        case 'cmd_data': {
+            onCommandData(event.data.component, event.data.data);
+            break;
         }
+        // case 'cmd_reset': {
+        //     console.log('cmd_reset - ' + gridData);
+        //     components['MIR_GRID'].instance.updateConfig({
+        //         fixedHeader: true,
+        //         data: []
+        //     }).render(document.getElementById(component));
+        //     break;
+        // }
     }
 });
 
-function onGridData(grid, data) {
-    grid.updateConfig(data);
-    grid.render(document.getElementById("wrapper"));
+function initComponents() {
+    return {
+        'MIR_GRID': {
+            type: 'grid',
+            instance: new gridjs.Grid({
+                // fixedHeader: true,
+                columns: ['Item', 'Value', 'Item', 'Value'],
+                data: []
+            })
+        },
+        'WIR_GRID': {
+            type: 'grid',
+            instance: new gridjs.Grid({
+                // fixedHeader: true,
+                columns: ['Item', 'Value', 'Item', 'Value'],
+                data: []
+            })
+        },        
+    }
 }
+
+function updateGridData(component, data) {
+    console.log('updateGridData - ' + component);
+    // gridData = data;
+    // components[component].instance.render(document.getElementById(component));
+    // console.log('updateGridData - ' + gridData);
+    components[component].instance.updateConfig({
+        // fixedHeader: true,
+        data: data
+    }).render(document.getElementById(component));
+}
+
+function onCommandData(component, data) {
+    console.log('onCommandData - ' + component);
+    console.log('onCommandData - ' + data);
+    updateGridData(component, data);        
+}
+
+
+// function onGridData(grid, data) {
+//     console.log('onGridData - ' + data);
+//     grid.updateConfig(data);
+//     grid.render(document.getElementById("wrapper"));
+// }
 
 // (
 //     function() {

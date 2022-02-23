@@ -1,22 +1,7 @@
 import EventEmitter = require('events');
 import * as vscode from 'vscode';
 
-// interface ViewOptions {
-//     options: vscode.WebviewPanelOptions & vscode.WebviewOptions,
-//     html: string
-// }
-
-// interface ViewScripts {
-//     [key: string]: ViewOptions
-// };
-
-// export enum ViewType {
-//     profile = 'protile.type',
-//     detail = 'detail.type'
-// };
-
-// export const ProfileView: string = 'profile.type';
-// export const DetailView: string = 'detail.type'; 
+const COMMAND_DATA: string = 'cmd_data';
 
 export interface PreviewPanelOptions {
     uri: vscode.Uri,
@@ -31,6 +16,7 @@ export interface PreviewPanelOptions {
 export abstract class PreviewPanel extends EventEmitter {
 
     private panel: vscode.WebviewPanel;
+    protected filePath!: string;
 
     constructor(private opts: PreviewPanelOptions) {
         super();
@@ -52,8 +38,9 @@ export abstract class PreviewPanel extends EventEmitter {
         });
 
         this.panel.onDidChangeViewState((event) => {
-            const actived = event.webviewPanel.active;
+            const actived = event.webviewPanel.visible;
             if (actived) {
+                this.onActived();
                 this.showStatus();
             } else {
                 this.hideStatus();
@@ -71,9 +58,10 @@ export abstract class PreviewPanel extends EventEmitter {
 
         return {
             enableScripts: true,
-            enableCommandUris: true,
-            enableForms: true,
-            enableFindWidget: true,
+            // enableCommandUris: true,
+            // enableForms: true,
+            // enableFindWidget: true,
+            retainContextWhenHidden: true,
             localResourceRoots: res
         };
     }
@@ -110,15 +98,30 @@ export abstract class PreviewPanel extends EventEmitter {
                 this.emit('stop_request');
             });
             return this.onFile(args.path);
-            // process.report({ increment: 3 });
-            // return new Promise<void>((resolve, reject) => {
-
-            //     setTimeout(() => {
-            //         resolve();
-            //     }, 2000);
-            // });
         });
     }
+
+    protected postViewMessage(command: string, component?: string, data?: any): void {
+        this.panel.webview?.postMessage({
+            command: command,
+            component: component,
+            data: data
+        });
+    }
+
+    protected updateComponentStyle(component: string, style: any): void {
+
+    }
+
+    protected updateComponentData(component: string, data: any): void {
+        this.postViewMessage(COMMAND_DATA, component, data);
+    }
+
+    protected updateComponentConfig(component: string, config: any): void {
+
+    }
+
+    protected onActived():void {}
 
     abstract getHtml(): string;
     abstract onFile(path: string): Promise<void>;
