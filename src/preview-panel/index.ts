@@ -13,10 +13,15 @@ export interface PreviewPanelOptions {
     status?: vscode.StatusBarItem
 }
 
+export interface ProcessArgs {
+    message?: string | undefined;
+    increment?: number | undefined;
+}
+
 export abstract class PreviewPanel extends EventEmitter {
 
     private panel: vscode.WebviewPanel;
-    protected filePath!: string;
+    protected filename!: string;
 
     constructor(private opts: PreviewPanelOptions) {
         super();
@@ -34,7 +39,7 @@ export abstract class PreviewPanel extends EventEmitter {
         this.panel.onDidDispose(() => {
             this.hideStatus();
             this.panel.dispose();
-            vscode.window.showErrorMessage('CLOSED');
+            // vscode.window.showErrorMessage('CLOSED');
         });
 
         this.panel.onDidChangeViewState((event) => {
@@ -89,6 +94,7 @@ export abstract class PreviewPanel extends EventEmitter {
     }
 
     onArgs(args: any): void {
+        // this.onFile(args.path);
         vscode.window.withProgress({
             location: vscode.ProgressLocation.Notification,
             title: 'STDF file analysing..',
@@ -97,7 +103,7 @@ export abstract class PreviewPanel extends EventEmitter {
             token.onCancellationRequested((event) => {
                 this.emit('stop_request');
             });
-            return this.onFile(args.path);
+            return this.onFile(process, args.path);
         });
     }
 
@@ -124,5 +130,5 @@ export abstract class PreviewPanel extends EventEmitter {
     protected onActived():void {}
 
     abstract getHtml(): string;
-    abstract onFile(path: string): Promise<void>;
+    abstract onFile(process: vscode.Progress<ProcessArgs>, path: string): Promise<void>;
 }

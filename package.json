@@ -76,7 +76,17 @@
 				}
 			]
 		},
-		"keybindings": []
+		"keybindings": [],
+		"configuration":{
+			"title": "STDF Preview",
+			"properties": {
+				"preview.notShowMissingField": {
+					"type": "boolean",
+					"default": false,
+					"description": "Don't show the field while missing its value in file."
+				}
+			}
+		}
 	},
 	"scripts": {
 		"vscode:prepublish": "npm run compile",

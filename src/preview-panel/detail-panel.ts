@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { PreviewPanel } from ".";
+import { PreviewPanel, ProcessArgs } from ".";
 
 export default class DetailViewPanel extends PreviewPanel {
 
@@ -38,7 +38,7 @@ export default class DetailViewPanel extends PreviewPanel {
 		`;
     }
 
-	onFile(path: string): Promise<void> {
+	onFile(process: vscode.Progress<ProcessArgs>, path: string): Promise<void> {
 		throw new Error('Method not implemented.');
 	}
 }

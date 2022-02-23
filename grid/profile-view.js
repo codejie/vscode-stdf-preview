@@ -38,7 +38,12 @@ function initComponents() {
             instance: new gridjs.Grid({
                 // fixedHeader: true,
                 columns: ['Item', 'Value', 'Item', 'Value'],
-                data: []
+                data: [],
+                style: {
+                    table: {
+                        width: '100%'
+                    }
+                }                
             })
         },
         'WIR_GRID': {
@@ -46,10 +51,15 @@ function initComponents() {
             instance: new gridjs.Grid({
                 // fixedHeader: true,
                 columns: ['Item', 'Value', 'Item', 'Value'],
-                data: []
+                data: [],
+                style: {
+                    table: {
+                        width: '100%'
+                    }
+                }
             })
         },        
-    }
+    };
 }
 
 function updateGridData(component, data) {
