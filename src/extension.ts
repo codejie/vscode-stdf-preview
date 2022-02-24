@@ -3,6 +3,7 @@
 import * as vscode from 'vscode';
 import { Configuration } from './preview-panel';
 import DetailViewPanel from './preview-panel/detail-panel';
+import FullViewPanel from './preview-panel/full-panel';
 import ProfileViewPanel from './preview-panel/profile-panel';
 
 
@@ -32,11 +33,17 @@ export function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(profile);
 
 	let detail = vscode.commands.registerCommand('stdf.detail.preview', (args) => {
-		console.log(args);
 		const detailViewPanel = new DetailViewPanel(context.extensionUri, vscode.ViewColumn.One, status);
 		return detailViewPanel.viewPanel;
 	});
 	context.subscriptions.push(detail);	
+
+	let full = vscode.commands.registerCommand('stdf.full.preview', (args) => {
+		const fullViewPanel = new FullViewPanel(context.extensionUri, vscode.ViewColumn.One, status);
+		fullViewPanel.emit('args', args);
+		return fullViewPanel.viewPanel;
+	});
+	context.subscriptions.push(full);		
 
 	// context.subscriptions.push(disposable);
 }

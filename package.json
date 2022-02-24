@@ -13,6 +13,7 @@
 		"onCommand:vscode-stdf-preview.helloWorld",
 		"onCommand:stdf.profile.preview",
 		"onCommand:stdf.detail.preview",
+		"onCommand:stdf.full.preview",
 		"onCommand:stdf.shift.preview",
 		"onLanguage:stdf"
 	],
@@ -33,10 +34,6 @@
 		],
 		"commands": [
 			{
-				"command": "vscode-stdf-preview.helloWorld",
-				"title": "Hello World"
-			},
-			{
 				"command": "stdf.profile.preview",
 				"title": "Profile Preview",
 				"category": "STDF",
@@ -48,6 +45,12 @@
 				"category": "STDF",
 				"icon": "$(symbol-keyword)"
 			},
+			{
+				"command": "stdf.full.preview",
+				"title": "Full Preview",
+				"category": "STDF",
+				"icon": "$(symbol-keyword)"
+			},			
 			{
 				"command": "stdf.shift.preview",
 				"title": "Shift Preview",
@@ -66,7 +69,12 @@
 					"command": "stdf.detail.preview",
 					"when": "resourceFilename =~ /.*\\.(std|stdf)/",
 					"group": "navigation@2"
-				}
+				},
+				{
+					"command": "stdf.full.preview",
+					"when": "resourceFilename =~ /.*\\.(std|stdf)/",
+					"group": "navigation@3"
+				}				
 			],
 			"editor/title": [
 				{
@@ -80,6 +88,11 @@
 		"configuration": {
 			"title": "STDF Preview",
 			"properties": {
+				"STDF.Preview.disableFullPreview": {
+					"type": "boolean",
+					"default": true,
+					"description": "Disable FullPreview function.\nBE CAREFUL, this function will comsume lots of memory."
+				},
 				"STDF.Preview.notShowMissingField": {
 					"type": "boolean",
 					"default": false,

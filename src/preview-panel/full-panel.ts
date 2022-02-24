@@ -4,16 +4,18 @@ import * as path from 'path';
 import { STDFAnalyser, Record } from 'stdf-analyser';
 import { PreviewPanel, ProcessArgs } from ".";
 
-export default class ProfileViewPanel extends PreviewPanel {
+export default class FullViewPanel extends PreviewPanel {
 
 	private processIncrement: number = 0;
+
+    private recordIncrement: number = 0;
 
     constructor(uri: vscode.Uri, column: vscode.ViewColumn, status: vscode.StatusBarItem) {
         super({
             uri: uri,
-            name: 'ProfileView',
+            name: 'Full Preview',
             column: column || vscode.ViewColumn.One,
-            type: 'profile.type',
+            type: 'full.type',
             resourcePath: ['grid'],
 			status: status
         });
@@ -53,18 +55,18 @@ export default class ProfileViewPanel extends PreviewPanel {
 		this.viewPanel.title = path.basename(this.filename);
 
 		process.report({
-			increment: (this.processIncrement += 10),
+			increment: (this.processIncrement += 1),
 			message: 'create STDF analyser...'
 		});
 		const analyser: STDFAnalyser = new STDFAnalyser({
 			// included: ['MIR', 'WIR', 'PTR']
 			// included: ['SDR'],
-			excluded: ['PTR', 'FTR', 'PIR', 'PRR', 'PMR', 'SBR', 'HBR', 'PGR', 'TSR']
+			// excluded: ['PTR', 'FTR', 'PIR', 'PRR', 'PMR', 'SBR', 'HBR', 'PGR', 'TSR']
 		});
 
 		process.report({
-			increment: (this.processIncrement += 10),
-			message: 'open STDF file...'
+			increment: (this.processIncrement += 1),
+			message: `open STDF file...`
 		});
 
 		const input = fs.createReadStream(this.filename);
@@ -93,53 +95,25 @@ export default class ProfileViewPanel extends PreviewPanel {
 
 		process.report({
 			increment: (this.processIncrement += 10),
-			message: ` ${record.name} record ..`
+			message: ` ${record.name}_${this.processIncrement} record ..`
 		});
 
 		this.defaultRecord(record);
 
-		// switch(record.name) {
-		// 	case 'MIR':
-		// 		this.onMIR(record);
-		// 		break;
-		// 	case 'WIR':
-		// 		this.onWIR(record);
-		// 		break;
-		// 	default:
-		// 		this.defaultRecord(record);
-		// }
+        ++ this.recordIncrement;
+
 		return Promise.resolve();
 	}
 
 	private defaultRecord(record: Record.RecordBase): void {
-		const id = `${record.name}_GRID`;
-		this.updateComponentRecord(id, record.name, record.desc || '');
+        const id = `${record.name}_GRID_${this.recordIncrement}`;
+		this.updateComponentRecord(id, `${record.name}_${this.recordIncrement}`, record.desc || '');
 		const data = {
 			columns: this.makeGridColumns(record),
 			data: this.makeGridData(record)
 		};
 		this.updateComponentConfig(id, data);
 	}
-
-	// private onMIR(record: Record.RecordBase): void {
-	// 	this.updateComponentRecord(record.name, record.desc || '');
-	// 	const data = {
-	// 		columns: this.makeGridColumns(record),
-	// 		data: this.makeGridData(record)
-	// 	};
-	// 	this.updateComponentConfig('MIR_GRID', data);
-	// 	// this.updateComponentData('MIR_GRID', data);
-	// }
-	
-	// private onWIR(record: Record.RecordBase): void {
-	// 	this.updateComponentRecord(record.name, record.desc || '');
-	// 	const data = {
-	// 		columns: this.makeGridColumns(record),
-	// 		data: this.makeGridData(record)
-	// 	};
-	// 	this.updateComponentConfig('WIR_GRID', data);
-	// 	// this.updateComponentData('WIR_GRID', data);
-	// }
 
 	private makeGridColumns(record: Record.RecordBase): any {
 		const showDesc = this.configuration.showDescription;
