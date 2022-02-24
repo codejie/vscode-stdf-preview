@@ -2,6 +2,13 @@ import EventEmitter = require('events');
 import * as vscode from 'vscode';
 
 const COMMAND_DATA: string = 'cmd_data';
+const COMMAND_CONFIG: string = 'cmd_config';
+const COMMAND_RECORD: string = 'cmd_record';
+
+export interface Configuration {
+    notShowMissingField: boolean,
+    showDescription: boolean 
+}
 
 export interface PreviewPanelOptions {
     uri: vscode.Uri,
@@ -10,7 +17,8 @@ export interface PreviewPanelOptions {
 
     name: string,
     column: vscode.ViewColumn,
-    status?: vscode.StatusBarItem
+
+    status: vscode.StatusBarItem
 }
 
 export interface ProcessArgs {
@@ -20,11 +28,17 @@ export interface ProcessArgs {
 
 export abstract class PreviewPanel extends EventEmitter {
 
-    private panel: vscode.WebviewPanel;
+    protected configuration: Configuration
+    protected panel: vscode.WebviewPanel;
     protected filename!: string;
 
-    constructor(private opts: PreviewPanelOptions) {
+    protected running: boolean = true;
+
+    constructor(protected opts: PreviewPanelOptions) {
         super();
+
+        this.configuration = this.fetchConfiguration(vscode.workspace.getConfiguration('STDF.Preview'));
+
         this.on('args', (args) => {
             this.onArgs(args);
         });
@@ -53,6 +67,15 @@ export abstract class PreviewPanel extends EventEmitter {
         });
 
         this.panel.webview.html = this.getHtml();
+    }
+
+    private fetchConfiguration(config: vscode.WorkspaceConfiguration): Configuration {
+        const ret: Configuration = {
+            notShowMissingField: config.get('notShowMissingField') || false,
+            showDescription: config.get('showFieldDescription') || false
+        };
+    
+        return ret;
     }
 
     private getOptions(): vscode.WebviewPanelOptions & vscode.WebviewOptions {
@@ -101,17 +124,17 @@ export abstract class PreviewPanel extends EventEmitter {
             cancellable: true
         }, (process, token) => {
             token.onCancellationRequested((event) => {
-                this.emit('stop_request');
+                // this.emit('stop_request');
+                this.running = false;
             });
             return this.onFile(process, args.path);
         });
     }
 
-    protected postViewMessage(command: string, component?: string, data?: any): void {
+    protected postViewMessage(command: string, data?: any): void {
         this.panel.webview?.postMessage({
             command: command,
-            component: component,
-            data: data
+            ...data
         });
     }
 
@@ -120,11 +143,23 @@ export abstract class PreviewPanel extends EventEmitter {
     }
 
     protected updateComponentData(component: string, data: any): void {
-        this.postViewMessage(COMMAND_DATA, component, data);
+        this.postViewMessage(COMMAND_DATA, {
+            component,
+            data
+        });
     }
 
     protected updateComponentConfig(component: string, config: any): void {
-
+        this.postViewMessage(COMMAND_CONFIG, {
+            component,
+            data: config
+        });
+    }
+    protected updateComponentRecord(name: string, desc: string): void {
+        this.postViewMessage(COMMAND_RECORD, {
+            name,
+            desc
+        });
     }
 
     protected onActived():void {}

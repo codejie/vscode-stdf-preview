@@ -77,13 +77,18 @@
 			]
 		},
 		"keybindings": [],
-		"configuration":{
+		"configuration": {
 			"title": "STDF Preview",
 			"properties": {
-				"preview.notShowMissingField": {
+				"STDF.Preview.notShowMissingField": {
 					"type": "boolean",
 					"default": false,
 					"description": "Don't show the field while missing its value in file."
+				},
+				"STDF.Preview.showFieldDescription": {
+					"type": "boolean",
+					"default": false,
+					"description": "Show the field description."
 				}
 			}
 		}
@@ -110,6 +115,6 @@
 		"typescript": "^4.5.4"
 	},
 	"dependencies": {
-		"stdf-analyser": "^1.0.2"
+		"stdf-analyser": "^1.0.3"
 	}
 }

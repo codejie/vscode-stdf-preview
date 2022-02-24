@@ -1,11 +1,10 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
-import { DataPriview } from './data-preview';
+import { Configuration } from './preview-panel';
 import DetailViewPanel from './preview-panel/detail-panel';
 import ProfileViewPanel from './preview-panel/profile-panel';
-import { TestView } from './test-panel';
-import { Template } from './view-template';
+
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed

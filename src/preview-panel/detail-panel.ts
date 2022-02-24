@@ -3,7 +3,7 @@ import { PreviewPanel, ProcessArgs } from ".";
 
 export default class DetailViewPanel extends PreviewPanel {
 
-    constructor(uri: vscode.Uri, column?: vscode.ViewColumn, status?: vscode.StatusBarItem) {
+    constructor(uri: vscode.Uri, column: vscode.ViewColumn, status: vscode.StatusBarItem) {
         super({
             uri: uri,
             name: 'DetailView',
