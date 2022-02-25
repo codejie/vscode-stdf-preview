@@ -4,9 +4,35 @@ import * as path from 'path';
 import { STDFAnalyser, Record } from 'stdf-analyser';
 import { PreviewPanel, ProcessArgs } from ".";
 
+interface WaferInfoData {
+	waferId?: string,
+	partType?: string,
+	lotId?: string,
+	subLotId?: string,
+	total?: number,
+	pass?: number,
+	jobName?: string,
+	start?: Date,
+	finish?: Date	
+}
+
+interface TestNumberData {
+	type: string,
+	number: number,
+	name: string,
+	count: number,
+	fail: number,
+	min: number,
+	max: number,
+	avg: number
+}
+
 export default class ProfileViewPanel extends PreviewPanel {
 
 	private processIncrement: number = 0;
+
+	private waferInfo: WaferInfoData = {};
+	private testNumberData: TestNumberData[] = [];
 
     constructor(uri: vscode.Uri, column: vscode.ViewColumn, status: vscode.StatusBarItem) {
         super({
@@ -57,9 +83,8 @@ export default class ProfileViewPanel extends PreviewPanel {
 			message: 'create STDF analyser...'
 		});
 		const analyser: STDFAnalyser = new STDFAnalyser({
-			// included: ['MIR', 'WIR', 'PTR']
-			// included: ['SDR'],
-			excluded: ['PTR', 'FTR', 'PIR', 'PRR', 'PMR', 'SBR', 'HBR', 'PGR', 'TSR']
+			included: ['MIR', 'WIR', 'WRR', 'TSR']
+			// excluded: ['PTR', 'FTR', 'PIR', 'PRR', 'PMR', 'SBR', 'HBR', 'PGR', 'TSR']
 		});
 
 		process.report({
@@ -70,12 +95,11 @@ export default class ProfileViewPanel extends PreviewPanel {
 		const input = fs.createReadStream(this.filename);
 
 		for await (const chunk of input) {
+			if (!this.running) {
+				break;
+			}
 			await analyser.analyseSync(<Buffer>chunk, (record) => {
-				if (this.running) {
-					return this.onRecord(process, record);
-				} else {
-					return Promise.reject();
-				}
+				return this.onRecord(process, record);
 			});
 		}
 
@@ -96,18 +120,23 @@ export default class ProfileViewPanel extends PreviewPanel {
 			message: ` ${record.name} record ..`
 		});
 
-		this.defaultRecord(record);
+		switch(record.name) {
+			case 'MIR':
+				this.onMIR(record);
+				break;
+			case 'WIR':
+				this.onWIR(record);
+				break;
+			case 'WRR':
+				this.onWRR(record);
+				break;
+			case 'TSR':
+				this.onTSR(record);
+				break;									
+			default:
+				this.defaultRecord(record);
+		}
 
-		// switch(record.name) {
-		// 	case 'MIR':
-		// 		this.onMIR(record);
-		// 		break;
-		// 	case 'WIR':
-		// 		this.onWIR(record);
-		// 		break;
-		// 	default:
-		// 		this.defaultRecord(record);
-		// }
 		return Promise.resolve();
 	}
 

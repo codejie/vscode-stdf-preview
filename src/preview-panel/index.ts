@@ -1,4 +1,5 @@
 import EventEmitter = require('events');
+import { stringify } from 'querystring';
 import * as vscode from 'vscode';
 
 const COMMAND_DATA: string = 'cmd_data';
@@ -6,6 +7,7 @@ const COMMAND_CONFIG: string = 'cmd_config';
 const COMMAND_RECORD: string = 'cmd_record';
 
 export interface Configuration {
+    recordsIncluded: string[] | undefined,
     notShowMissingField: boolean,
     showDescription: boolean 
 }
@@ -70,7 +72,14 @@ export abstract class PreviewPanel extends EventEmitter {
     }
 
     private fetchConfiguration(config: vscode.WorkspaceConfiguration): Configuration {
+        let included: string | string[] | undefined = config.get('recordsIncluded');
+        if (included === undefined || included.length === 0) {
+            included = undefined
+        } else {
+            included = (<string>included).toUpperCase().split(',');
+        }
         const ret: Configuration = {
+            recordsIncluded: included,
             notShowMissingField: config.get('notShowMissingField') || false,
             showDescription: config.get('showFieldDescription') || false
         };

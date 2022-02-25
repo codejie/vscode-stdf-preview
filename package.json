@@ -13,7 +13,7 @@
 		"onCommand:vscode-stdf-preview.helloWorld",
 		"onCommand:stdf.profile.preview",
 		"onCommand:stdf.detail.preview",
-		"onCommand:stdf.full.preview",
+		"onCommand:stdf.records.preview",
 		"onCommand:stdf.shift.preview",
 		"onLanguage:stdf"
 	],
@@ -46,8 +46,8 @@
 				"icon": "$(symbol-keyword)"
 			},
 			{
-				"command": "stdf.full.preview",
-				"title": "Full Preview",
+				"command": "stdf.records.preview",
+				"title": "Records Preview",
 				"category": "STDF",
 				"icon": "$(symbol-keyword)"
 			},			
@@ -71,7 +71,7 @@
 					"group": "navigation@2"
 				},
 				{
-					"command": "stdf.full.preview",
+					"command": "stdf.records.preview",
 					"when": "resourceFilename =~ /.*\\.(std|stdf)/",
 					"group": "navigation@3"
 				}				
@@ -88,11 +88,11 @@
 		"configuration": {
 			"title": "STDF Preview",
 			"properties": {
-				"STDF.Preview.disableFullPreview": {
-					"type": "boolean",
-					"default": true,
-					"description": "Disable FullPreview function.\nBE CAREFUL, this function will comsume lots of memory."
-				},
+				"STDF.Preview.recordsIncluded": {
+					"type": "string",
+					"default": "FAR,ATR,MIR,MRR,PCR,WIR,WRR,WCR,BPS,EPS",
+					"markdownDescription": "Indicate STDF Records to be analysed.\n\nBe `NOT` recommended to set up multi-results records, such as PIR, PTR, FTP, PRR, etc., as it will comsume `a lot of memory` to parse them."
+				},				
 				"STDF.Preview.notShowMissingField": {
 					"type": "boolean",
 					"default": false,

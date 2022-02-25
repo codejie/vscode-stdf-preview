@@ -3,7 +3,7 @@
 import * as vscode from 'vscode';
 import { Configuration } from './preview-panel';
 import DetailViewPanel from './preview-panel/detail-panel';
-import FullViewPanel from './preview-panel/full-panel';
+import RecordsViewPanel from './preview-panel/records-panel';
 import ProfileViewPanel from './preview-panel/profile-panel';
 
 
@@ -38,12 +38,12 @@ export function activate(context: vscode.ExtensionContext) {
 	});
 	context.subscriptions.push(detail);	
 
-	let full = vscode.commands.registerCommand('stdf.full.preview', (args) => {
-		const fullViewPanel = new FullViewPanel(context.extensionUri, vscode.ViewColumn.One, status);
-		fullViewPanel.emit('args', args);
-		return fullViewPanel.viewPanel;
+	let records = vscode.commands.registerCommand('stdf.records.preview', (args) => {
+		const recordsViewPanel = new RecordsViewPanel(context.extensionUri, vscode.ViewColumn.One, status);
+		recordsViewPanel.emit('args', args);
+		return recordsViewPanel.viewPanel;
 	});
-	context.subscriptions.push(full);		
+	context.subscriptions.push(records);		
 
 	// context.subscriptions.push(disposable);
 }

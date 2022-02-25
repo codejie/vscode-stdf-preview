@@ -4,7 +4,7 @@ import * as path from 'path';
 import { STDFAnalyser, Record } from 'stdf-analyser';
 import { PreviewPanel, ProcessArgs } from ".";
 
-export default class FullViewPanel extends PreviewPanel {
+export default class RecordsViewPanel extends PreviewPanel {
 
 	private processIncrement: number = 0;
 
@@ -60,7 +60,7 @@ export default class FullViewPanel extends PreviewPanel {
 		});
 		const analyser: STDFAnalyser = new STDFAnalyser({
 			// included: ['MIR', 'WIR', 'PTR']
-			// included: ['SDR'],
+			included: this.configuration.recordsIncluded //['FAR','ATR','MIR','MRR','PCR','WIR','WRR','WCR','BPS','EPS','GDR','DTR','TSR'],
 			// excluded: ['PTR', 'FTR', 'PIR', 'PRR', 'PMR', 'SBR', 'HBR', 'PGR', 'TSR']
 		});
 
@@ -72,12 +72,11 @@ export default class FullViewPanel extends PreviewPanel {
 		const input = fs.createReadStream(this.filename);
 
 		for await (const chunk of input) {
+			if (!this.running) {
+				break;
+			}
 			await analyser.analyseSync(<Buffer>chunk, (record) => {
-				if (this.running) {
-					return this.onRecord(process, record);
-				} else {
-					return Promise.reject();
-				}
+				return this.onRecord(process, record);
 			});
 		}
 
@@ -94,7 +93,7 @@ export default class FullViewPanel extends PreviewPanel {
 	private onRecord(process: vscode.Progress<ProcessArgs>, record: Record.RecordBase): Promise<void> {
 
 		process.report({
-			increment: (this.processIncrement += 10),
+			increment: (this.processIncrement += 1),
 			message: ` ${record.name}_${this.processIncrement} record ..`
 		});
 
