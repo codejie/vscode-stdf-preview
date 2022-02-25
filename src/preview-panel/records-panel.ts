@@ -138,6 +138,10 @@ export default class RecordsViewPanel extends PreviewPanel {
 		} else {
 			return [
 				{
+					name: 'No.',
+					width: '3%'
+				},
+				{
 					name: 'Item',
 					width: '15%'
 				},
@@ -147,7 +151,7 @@ export default class RecordsViewPanel extends PreviewPanel {
 				},
 				{
 					name: 'Description',
-					width: '50%'
+					width: '47%'
 				},
 			];
 		}
@@ -176,11 +180,12 @@ export default class RecordsViewPanel extends PreviewPanel {
 				ret.push(t);
 			}			
 		} else {
+			let no = 0;
 			for (const field of record.fields) {
 				if (notMissing && field.value === undefined) {
 					continue;
 				}
-				ret.push([field.name, field.toValueNotes(), field.desc]);
+				ret.push([no ++, field.name, field.toValueNotes(), field.desc]);
 			}
 		}
 

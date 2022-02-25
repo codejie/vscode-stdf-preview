@@ -150,25 +150,24 @@ export default class ProfileViewPanel extends PreviewPanel {
 		this.updateComponentConfig(id, data);
 	}
 
-	// private onMIR(record: Record.RecordBase): void {
-	// 	this.updateComponentRecord(record.name, record.desc || '');
-	// 	const data = {
-	// 		columns: this.makeGridColumns(record),
-	// 		data: this.makeGridData(record)
-	// 	};
-	// 	this.updateComponentConfig('MIR_GRID', data);
-	// 	// this.updateComponentData('MIR_GRID', data);
-	// }
+	private onMIR(record: Record.RecordBase): void {
+		// this.waferInfo = {
+		// 	...this.waferInfo,
+		// 	lotId: record.
+		// }	
+	}
 	
-	// private onWIR(record: Record.RecordBase): void {
-	// 	this.updateComponentRecord(record.name, record.desc || '');
-	// 	const data = {
-	// 		columns: this.makeGridColumns(record),
-	// 		data: this.makeGridData(record)
-	// 	};
-	// 	this.updateComponentConfig('WIR_GRID', data);
-	// 	// this.updateComponentData('WIR_GRID', data);
-	// }
+	private onWIR(record: Record.RecordBase): void {
+
+	}
+
+	private onWRR(record: Record.RecordBase): void {
+
+	}
+	
+	private onTSR(record: Record.RecordBase): void {
+		
+	}
 
 	private makeGridColumns(record: Record.RecordBase): any {
 		const showDesc = this.configuration.showDescription;
