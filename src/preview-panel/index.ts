@@ -74,7 +74,7 @@ export abstract class PreviewPanel extends EventEmitter {
     private fetchConfiguration(config: vscode.WorkspaceConfiguration): Configuration {
         let included: string | string[] | undefined = config.get('recordsIncluded');
         if (included === undefined || included.length === 0) {
-            included = undefined
+            included = undefined;
         } else {
             included = (<string>included).toUpperCase().split(',');
         }
@@ -136,7 +136,7 @@ export abstract class PreviewPanel extends EventEmitter {
                 // this.emit('stop_request');
                 this.running = false;
             });
-            return this.onFile(process, args.path);
+            return this.onFile(process, args._fsPath);// args.path);
         });
     }
 
