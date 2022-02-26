@@ -39,9 +39,6 @@ export default class RecordsViewPanel extends PreviewPanel {
 				<script type="text/javascript" src="${scriptUri}"></script>				
 			</head>
 			<body>
-				<div>
-					<button class="btn">BUTTON</button>
-				</div>
 				<div id="container" width="100%">
 				</div>
 			</body>
@@ -106,7 +103,8 @@ export default class RecordsViewPanel extends PreviewPanel {
 
 	private defaultRecord(record: Record.RecordBase): void {
         const id = `${record.name}_GRID_${this.recordIncrement}`;
-		this.updateComponentRecord(id, `${record.name}_${this.recordIncrement}`, record.desc || '');
+		const title = `<font size="6pt">${record.name}_${this.recordIncrement}</font>&nbsp;&nbsp;<font size="4pt">(${record.desc})</font>`;
+		this.updateComponentRecord(id, title);
 		const data = {
 			columns: this.makeGridColumns(record),
 			data: this.makeGridData(record)

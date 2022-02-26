@@ -4,7 +4,7 @@ import * as path from 'path';
 import { STDFAnalyser, Record } from 'stdf-analyser';
 import { PreviewPanel, ProcessArgs } from ".";
 
-interface WaferInfoData {
+interface WaferInfoStruct {
 	waferId?: string,
 	partType?: string,
 	lotId?: string,
@@ -16,23 +16,39 @@ interface WaferInfoData {
 	finish?: Date	
 }
 
-interface TestNumberData {
-	type: string,
-	number: number,
+// interface TestNumberData {
+// 	type: string,
+// 	number: number,
+// 	name: string,
+// 	count: number,
+// 	fail: number,
+// 	min: number,
+// 	max: number,
+// 	avg: number
+// }
+
+interface DataStruct {
 	name: string,
-	count: number,
-	fail: number,
-	min: number,
-	max: number,
-	avg: number
+	value?: string
 }
+
+// interface TestNumberStruct {
+// 	number: number,
+// 	name: string,
+// 	data: DataStruct[]
+// }
+
+const WaferInfoFields = ['WaferId', 'ProductId', 'LotId', 'subLotId',
+	'PartTotal', 'PartPass', 'JobName', 'start', 'finish'];
+
+const TestNumberDataFields = ['Type', 'Number', 'Name', 'Count', 'Fail', 'Min', 'Max', 'Avg'];
 
 export default class ProfileViewPanel extends PreviewPanel {
 
 	private processIncrement: number = 0;
 
-	private waferInfo: WaferInfoData = {};
-	private testNumberData: TestNumberData[] = [];
+	private waferInfo: WaferInfoStruct = {};
+	private testNumberData: DataStruct[][] = [];
 
     constructor(uri: vscode.Uri, column: vscode.ViewColumn, status: vscode.StatusBarItem) {
         super({
@@ -44,6 +60,14 @@ export default class ProfileViewPanel extends PreviewPanel {
 			status: status
         });
     }
+
+	// initDataStructs() {
+	// 	WaferInfoFields.forEach(element => {
+	// 		this.waferInfo.push({
+	// 			name: element
+	// 		});
+	// 	});
+	// }
 
     getHtml(): string {
 		const gridStyle = this.getResourceUri('grid/components.css');
@@ -84,7 +108,6 @@ export default class ProfileViewPanel extends PreviewPanel {
 		});
 		const analyser: STDFAnalyser = new STDFAnalyser({
 			included: ['MIR', 'WIR', 'WRR', 'TSR']
-			// excluded: ['PTR', 'FTR', 'PIR', 'PRR', 'PMR', 'SBR', 'HBR', 'PGR', 'TSR']
 		});
 
 		process.report({
@@ -142,31 +165,43 @@ export default class ProfileViewPanel extends PreviewPanel {
 
 	private defaultRecord(record: Record.RecordBase): void {
 		const id = `${record.name}_GRID`;
-		this.updateComponentRecord(id, record.name, record.desc || '');
+		const title = `<font size="6pt">${record.name}</font>&nbsp;&nbsp;<font size="4pt">(${record.desc})</font>`;
+		this.updateComponentRecord(id, title);
 		const data = {
 			columns: this.makeGridColumns(record),
 			data: this.makeGridData(record)
 		};
 		this.updateComponentConfig(id, data);
 	}
-
+// ['WaferId', 'ProductId', 'LotId', 'subLotId',
+// 	'PartTotal', 'PartPass', 'JobName', 'start', 'finish'];
 	private onMIR(record: Record.RecordBase): void {
-		// this.waferInfo = {
-		// 	...this.waferInfo,
-		// 	lotId: record.
-		// }	
+		this.waferInfo.lotId = record.fields[8].value;
+		this.waferInfo.partType = record.fields[9].value;
+		this.waferInfo.subLotId = record.fields[14].value;
+		this.waferInfo.jobName = record.fields[12].value;
 	}
 	
 	private onWIR(record: Record.RecordBase): void {
-
+		this.waferInfo.waferId = record.fields[3].value;
+		this.waferInfo.start = record.fields[2].value;
 	}
 
 	private onWRR(record: Record.RecordBase): void {
+		this.waferInfo.finish = record.fields[2].value;
+		this.waferInfo.total = record.fields[3].value;
+		this.waferInfo.pass = record.fields[6].value;
 
+		this.makeWaferComponent();
+		// this.makeWaferInfoData();
 	}
 	
 	private onTSR(record: Record.RecordBase): void {
 		
+	}
+
+	private makeWaferComponent() {
+		this.updateComponentRecord('wafer_grid', 'Wafer Information');
 	}
 
 	private makeGridColumns(record: Record.RecordBase): any {

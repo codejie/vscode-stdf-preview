@@ -1,4 +1,4 @@
-function createRecordGridSection(parent, title, id) {
+function createRecordGridSection(parent, id, title) {
     const div = document.getElementById(parent);
     
     const label = document.createElement('div');

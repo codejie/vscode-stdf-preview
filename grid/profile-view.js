@@ -29,6 +29,6 @@ function onCommandConfig(component, data) {
     }).render(document.getElementById(component));
 }
 
-function onCommandRecord(id, name, desc) {
-    createRecordGridSection('container', `<font size="6pt">${name}</font>&nbsp;&nbsp;<font size="4pt">(${desc})</font>`, id);
+function onCommandRecord(id, title) {
+    createRecordGridSection('container', id, title);
 }

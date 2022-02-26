@@ -164,11 +164,10 @@ export abstract class PreviewPanel extends EventEmitter {
             data: config
         });
     }
-    protected updateComponentRecord(id: string, title: string, desc: string): void {
+    protected updateComponentRecord(id: string, title: string): void {
         this.postViewMessage(COMMAND_RECORD, {
             id,
-            title,
-            desc
+            title
         });
     }
 
