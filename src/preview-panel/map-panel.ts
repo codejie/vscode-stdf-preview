@@ -4,18 +4,36 @@ import * as path from 'path';
 import { STDFAnalyser, Record } from 'stdf-analyser';
 import { PreviewPanel, ProcessArgs } from ".";
 
-export default class RecordsViewPanel extends PreviewPanel {
+interface BinDataStruct {
+	number: number,
+	name: string,
+	count: number,
+	flag: string,
+	color: string
+}
+
+type MapDataStruct = any[];
+
+const COLOR_PASS = ['#33691E', '#2E7D32', '#388E3C', '#43A047'];
+const COLOR_FAIL = ['#B71C1C', '#C62828', '#D32F2F', '#E53935', '#F44336'];
+
+export default class MapViewPanel extends PreviewPanel {
 
 	private processIncrement: number = 0;
-
     private recordIncrement: number = 0;
+
+	private binData: BinDataStruct[] = [];
+	private mapData: MapDataStruct[] = [];
+
+	private passColorInc: number = 0;
+	private failColorInc: number = 0;
 
     constructor(uri: vscode.Uri, column: vscode.ViewColumn, status: vscode.StatusBarItem) {
         super({
             uri: uri,
-            name: 'Full Preview',
+            name: 'Map Preview',
             column: column || vscode.ViewColumn.One,
-            type: 'full.type',
+            type: 'map.type',
             resourcePath: ['grid'],
 			status: status
         });
@@ -39,12 +57,17 @@ export default class RecordsViewPanel extends PreviewPanel {
 			</head>
 			<body>
 				<div id="container" width="100%"/>
+				<canvas id="canvas"/>
 			</body>
 			</html>
 		`;
     }
 
 	async onFile(process: vscode.Progress<ProcessArgs>, filename: string): Promise<void> {
+
+		this.drawRectangle('canvas', 0, 0, []);
+		return Promise.resolve();
+
 		this.filename = filename;
 
 		this.viewPanel.title = path.basename(this.filename);
@@ -54,8 +77,7 @@ export default class RecordsViewPanel extends PreviewPanel {
 			message: 'create STDF analyser...'
 		});
 		const analyser: STDFAnalyser = new STDFAnalyser({
-			// included: ['MIR', 'WIR', 'PTR']
-			included: this.configuration.recordsIncluded //['FAR','ATR','MIR','MRR','PCR','WIR','WRR','WCR','BPS','EPS','GDR','DTR','TSR'],
+			included: ['SBR', 'PIR', 'PRR']
 			// excluded: ['PTR', 'FTR', 'PIR', 'PRR', 'PMR', 'SBR', 'HBR', 'PGR', 'TSR']
 		});
 
@@ -88,26 +110,41 @@ export default class RecordsViewPanel extends PreviewPanel {
 	private onRecord(process: vscode.Progress<ProcessArgs>, record: Record.RecordBase): Promise<void> {
 
 		process.report({
-			increment: (this.processIncrement += 1),
-			message: ` ${record.name}_${this.processIncrement} record ..`
+			increment: (this.processIncrement += 10),
+			message: ` ${record.name} record ..`
 		});
 
-		this.defaultRecord(record);
-
-        ++ this.recordIncrement;
+		switch(record.name) {
+			case 'SBR':
+				this.onSBR(record);
+				break;
+			case 'PIR':
+				this.onPIR(record);
+				break;
+			case 'PRR':
+				this.onPRR(record);
+				break;										
+			default:
+				;
+		}
 
 		return Promise.resolve();
 	}
 
-	private defaultRecord(record: Record.RecordBase): void {
-        const id = `${record.name}_GRID_${this.recordIncrement}`;
-		const title = `<font size="6pt">${record.name}_${this.recordIncrement}</font>&nbsp;&nbsp;<font size="4pt">(${record.desc})</font>`;
-		this.updateComponent(id, title);
-		const data = {
-			columns: this.makeGridColumns(record),
-			data: this.makeGridData(record)
-		};
-		this.updateComponentConfig(id, data);
+	private onSBR(record: Record.RecordBase): void {
+		this.binData.push({
+			number: record.fields[2].value,
+			name: record.fields[5].value,
+			count: record.fields[3].value,
+			flag: record.fields[4].value,
+			color: (record.fields[4].value === 'P' ? COLOR_PASS[this.passColorInc ++] : COLOR_FAIL[this.failColorInc ++])
+		});	
+	}
+
+	private onPIR(record: Record.RecordBase): void {
+	}
+
+	private onPRR(record: Record.RecordBase): void {
 	}
 
 	private makeGridColumns(record: Record.RecordBase): any {

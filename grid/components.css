@@ -3,3 +3,9 @@
     height: fit-content;
     width: 100%;
 }
+
+#canvas { 
+    display:block;
+    margin: 10px auto;
+    border: 1px solid red;
+}

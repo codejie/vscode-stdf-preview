@@ -61,8 +61,8 @@ export default class ProfileViewPanel extends PreviewPanel {
 
     getHtml(): string {
 		const gridStyle = this.getResourceUri('grid/components.css');
-		const commonScript = this.getResourceUri('grid/common.js');
-		const scriptUri = this.getResourceUri('grid/profile-view.js');
+		// const commonScript = this.getResourceUri('grid/common.js');
+		const scriptUri = this.getResourceUri('grid/view-panel.js');
 		const gridUri = this.getResourceUri('grid/gridjs.umd.js');
 		const styleMainUri = this.getResourceUri('grid/mermaid.min.css');
 
@@ -72,16 +72,11 @@ export default class ProfileViewPanel extends PreviewPanel {
 			<head>
 				<link href="${gridStyle}" rel="stylesheet"/>
 				<link href="${styleMainUri}" rel="stylesheet"/>
-				<script type="text/javascript" src=${commonScript}></script>
 				<script type="text/javascript" src=${gridUri}></script>
 				<script type="text/javascript" src="${scriptUri}"></script>				
 			</head>
 			<body>
-				<div>
-					<button class="btn">BUTTON</button>
-				</div>
-				<div id="container" width="100%">
-				</div>
+				<div id="container" width="100%"/>
 			</body>
 			</html>
 		`;
@@ -222,7 +217,7 @@ export default class ProfileViewPanel extends PreviewPanel {
 
 	private makeWaferInfoComponent() {
 		const title = `<font size="6pt">Wafer Information</font>`;
-		this.updateComponentRecord('wafer_grid', title);
+		this.updateComponent('wafer_grid', title);
 	}
 
 	private makeWaferInfoData() {
@@ -257,7 +252,7 @@ export default class ProfileViewPanel extends PreviewPanel {
 		
 	private makeTestNumberComponent() {
 		const title ='<font size="6pt">TestNumber (Parametric) Results</font>';
-		this.updateComponentRecord('testnumber_grid', title);
+		this.updateComponent('testnumber_grid', title);
 	}
 
 	private makeTestNumberData() {
@@ -309,7 +304,7 @@ export default class ProfileViewPanel extends PreviewPanel {
 
 	private makeBinComponent() {
 		const title ='<font size="6pt">Bin Results</font>';
-		this.updateComponentRecord('bin_grid', title);
+		this.updateComponent('bin_grid', title);
 	}
 
 	private makeBinData() {

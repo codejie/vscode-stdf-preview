@@ -5,6 +5,7 @@ import { Configuration } from './preview-panel';
 import DetailViewPanel from './preview-panel/detail-panel';
 import RecordsViewPanel from './preview-panel/records-panel';
 import ProfileViewPanel from './preview-panel/profile-panel';
+import MapViewPanel from './preview-panel/map-panel';
 
 
 // this method is called when your extension is activated
@@ -31,6 +32,13 @@ export function activate(context: vscode.ExtensionContext) {
 		return profileViewPanel.viewPanel;
 	});
 	context.subscriptions.push(profile);
+
+	let map = vscode.commands.registerCommand('stdf.map.preview', (args) => {
+		const mapViewPanel = new MapViewPanel(context.extensionUri, vscode.ViewColumn.One, status);
+		mapViewPanel.emit('args', args);
+		return mapViewPanel.viewPanel;
+	});
+	context.subscriptions.push(map);	
 
 	let detail = vscode.commands.registerCommand('stdf.detail.preview', (args) => {
 		const detailViewPanel = new DetailViewPanel(context.extensionUri, vscode.ViewColumn.One, status);

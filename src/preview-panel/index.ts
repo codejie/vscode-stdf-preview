@@ -2,9 +2,10 @@ import EventEmitter = require('events');
 import { stringify } from 'querystring';
 import * as vscode from 'vscode';
 
-const COMMAND_DATA: string = 'cmd_data';
+// const COMMAND_DATA: string = 'cmd_data';
 const COMMAND_CONFIG: string = 'cmd_config';
-const COMMAND_RECORD: string = 'cmd_record';
+const COMMAND_COMPONENT: string = 'cmd_component';
+const COMMAND_DRAWRECT: string = 'cmd_draw_rect';
 
 export interface Configuration {
     recordsIncluded: string[] | undefined,
@@ -30,7 +31,7 @@ export interface ProcessArgs {
 
 export abstract class PreviewPanel extends EventEmitter {
 
-    protected configuration: Configuration
+    protected configuration: Configuration;
     protected panel: vscode.WebviewPanel;
     protected filename!: string;
 
@@ -151,12 +152,12 @@ export abstract class PreviewPanel extends EventEmitter {
 
     }
 
-    protected updateComponentData(component: string, data: any): void {
-        this.postViewMessage(COMMAND_DATA, {
-            component,
-            data
-        });
-    }
+    // protected updateComponentData(component: string, data: any): void {
+    //     this.postViewMessage(COMMAND_DATA, {
+    //         component,
+    //         data
+    //     });
+    // }
 
     protected updateComponentConfig(component: string, config: any): void {
         this.postViewMessage(COMMAND_CONFIG, {
@@ -164,10 +165,20 @@ export abstract class PreviewPanel extends EventEmitter {
             data: config
         });
     }
-    protected updateComponentRecord(id: string, title: string): void {
-        this.postViewMessage(COMMAND_RECORD, {
+
+    protected updateComponent(id: string, title: string): void {
+        this.postViewMessage(COMMAND_COMPONENT, {
             id,
             title
+        });
+    }
+
+    protected drawRectangle(id: string, maxX: number, maxY: number, data: number[] | undefined []) {
+        this.postViewMessage(COMMAND_DRAWRECT, {
+            id,
+            maxX,
+            maxY,
+            data
         });
     }
 

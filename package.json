@@ -12,6 +12,7 @@
 	"activationEvents": [
 		"onCommand:vscode-stdf-preview.helloWorld",
 		"onCommand:stdf.profile.preview",
+		"onCommand:stdf.map.preview",
 		"onCommand:stdf.detail.preview",
 		"onCommand:stdf.records.preview",
 		"onCommand:stdf.shift.preview",
@@ -40,11 +41,17 @@
 				"icon": "$(symbol-keyword)"
 			},
 			{
+				"command": "stdf.map.preview",
+				"title": "Map Preview",
+				"category": "STDF",
+				"icon": "$(symbol-keyword)"
+			},
+			{
 				"command": "stdf.detail.preview",
 				"title": "Detail Preview",
 				"category": "STDF",
 				"icon": "$(symbol-keyword)"
-			},
+			},			
 			{
 				"command": "stdf.records.preview",
 				"title": "Records Preview",
@@ -66,14 +73,19 @@
 					"group": "navigation@1"
 				},
 				{
-					"command": "stdf.detail.preview",
+					"command": "stdf.map.preview",
 					"when": "resourceFilename =~ /.*\\.(std|stdf)/",
 					"group": "navigation@2"
+				},				
+				{
+					"command": "stdf.detail.preview",
+					"when": "resourceFilename =~ /.*\\.(std|stdf)/",
+					"group": "navigation@3"
 				},
 				{
 					"command": "stdf.records.preview",
 					"when": "resourceFilename =~ /.*\\.(std|stdf)/",
-					"group": "navigation@3"
+					"group": "navigation@4"
 				}
 			],
 			"editor/title": [
@@ -102,6 +114,11 @@
 					"type": "boolean",
 					"default": false,
 					"description": "Show the field description."
+				},
+				"STDF.Previwe.drawBackgroundGrid": {
+					"type": "boolean",
+					"default": true,
+					"description": "Draw background grid lines."
 				}
 			}
 		}
