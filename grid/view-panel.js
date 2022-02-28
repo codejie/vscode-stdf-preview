@@ -64,53 +64,32 @@ function createRecordGridSection(parent, id, title) {
     div.appendChild(holder);
 }
 
-// function drawLines(id, width) {
-//     const canvas = document.getElementById(id);
-
-//     const ctx = canvas.getContext('2d');
-
-//     ctx.canvas.width  = window.innerWidth;
-//     ctx.canvas.height = window.innerHeight;
-
-//     const gap = canvas.width / 40; 
-
-//     ctx.strokeStyle = 'blue';
-
-//     for (i = 0; i < 40; ++ i) {
-//         ctx.beginPath();
-//         ctx.moveTo(0, i * gap);
-//         ctx.lineTo(canvas.width, i * gap);
-//         ctx.stroke();
-
-//         ctx.beginPath();
-//         ctx.moveTo(i * gap, 0);
-//         ctx.lineTo(i * gap, canvas.width);
-//         ctx.stroke();
-//     }
-// }
+function createCanvasSection(parent, id) {
+    const div = document.getElementById(parent);
+    const canvas = document.createElement('canvas');
+    canvas.id = id;
+    div.appendChild(canvas);
+}
 
 function drawRectangles(id, maxX, maxY, data) {
-    const canvas = document.getElementById(id);
-    console.log('canvas - ' + canvas.width);
-    console.log('canvas - ' + canvas.height);
-    
+    // createCanvasSection('map-container', id);
+
+    const canvas = document.getElementById(id);    
     const ctx = canvas.getContext('2d');
 
     const width = Math.min( window.innerWidth, window.innerHeight * 0.95);
+    const columns = Math.max(maxX, maxY);
 
     canvas.width  = width;//window.innerWidth * 0.9;
     canvas.height = width;//window.innerHeight * 0.9;
-    console.log('canvas end - ' + canvas.width);
-    console.log('canvas end - ' + canvas.height);
 
-    console.log('min width end - ' + width);
-    const gap = width / 100;
+    const gap = width / columns;
 
     ctx.strokeStyle = 'grey';
-    ctx.lineWidth = .1;
+    ctx.lineWidth = 1;
 
     ctx.beginPath();
-    for (i = 0; i < 101; ++ i) {
+    for (i = 0; i < (columns + 1); ++ i) {
         // ctx.beginPath();
         ctx.moveTo(0, i * gap);
         ctx.lineTo(width, i * gap);
@@ -122,12 +101,60 @@ function drawRectangles(id, maxX, maxY, data) {
         ctx.stroke();
     }    
 
+
+
     ctx.fillStyle = '#33691E';
-    ctx.strokeStyle = 'blue';
+    // ctx.strokeStyle = '#33691E';
     // ctx.lineWidth = '1px';
     ctx.beginPath();
-    for (i = 0; i < 100; ++ i) {
+    for (i = 0; i < columns; ++ i) {
         ctx.fillRect((i * gap) + 1, (i * gap) + 1, gap - 1 , gap - 1);
         // ctx.strokeRect(i * side, i * side, side, side);
     }
 }
+
+
+// function drawRectangles(id, maxX, maxY, data) {
+//     createCanvasSection('map-container', id);
+
+//     const canvas = document.getElementById(id);
+//     console.log('canvas - ' + canvas.width);
+//     console.log('canvas - ' + canvas.height);
+    
+//     const ctx = canvas.getContext('2d');
+
+//     const width = Math.min( window.innerWidth, window.innerHeight * 0.95);
+
+//     canvas.width  = width;//window.innerWidth * 0.9;
+//     canvas.height = width;//window.innerHeight * 0.9;
+//     console.log('canvas end - ' + canvas.width);
+//     console.log('canvas end - ' + canvas.height);
+
+//     console.log('min width end - ' + width);
+//     const gap = width / 100;
+
+//     ctx.strokeStyle = 'grey';
+//     ctx.lineWidth = .1;
+
+//     ctx.beginPath();
+//     for (i = 0; i < 101; ++ i) {
+//         // ctx.beginPath();
+//         ctx.moveTo(0, i * gap);
+//         ctx.lineTo(width, i * gap);
+//         ctx.stroke();
+
+//         // ctx.beginPath();
+//         ctx.moveTo(i * gap, 0);
+//         ctx.lineTo(i * gap, width);
+//         ctx.stroke();
+//     }    
+
+//     ctx.fillStyle = '#33691E';
+//     ctx.strokeStyle = 'blue';
+//     // ctx.lineWidth = '1px';
+//     ctx.beginPath();
+//     for (i = 0; i < 100; ++ i) {
+//         ctx.fillRect((i * gap) + 1, (i * gap) + 1, gap - 1 , gap - 1);
+//         // ctx.strokeRect(i * side, i * side, side, side);
+//     }
+// }

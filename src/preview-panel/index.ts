@@ -173,7 +173,7 @@ export abstract class PreviewPanel extends EventEmitter {
         });
     }
 
-    protected drawRectangle(id: string, maxX: number, maxY: number, data: number[] | undefined []) {
+    protected drawRectangle(id: string, maxX: number, maxY: number, data: any) {
         this.postViewMessage(COMMAND_DRAWRECT, {
             id,
             maxX,
