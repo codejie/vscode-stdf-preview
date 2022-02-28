@@ -101,16 +101,25 @@ function drawRectangles(id, maxX, maxY, data) {
         ctx.stroke();
     }    
 
+    // ctx.beginPath();
+    data.map.forEach(item => {
+        ctx.beginPath();
+        console.log('item = ' + item.toString());
+        console.log('item[2] = ' + item[2] + ' value = ' + data.bin[item[2]]);
+        ctx.fillStyle = data.bin[item[2]];
+        console.log('fill = ' + ctx.fillStyle);
+        ctx.fillRect(item[0] * gap + 1, item[1] * gap + 1, gap - 1, gap - 1);
+    });
 
 
-    ctx.fillStyle = '#33691E';
-    // ctx.strokeStyle = '#33691E';
-    // ctx.lineWidth = '1px';
-    ctx.beginPath();
-    for (i = 0; i < columns; ++ i) {
-        ctx.fillRect((i * gap) + 1, (i * gap) + 1, gap - 1 , gap - 1);
-        // ctx.strokeRect(i * side, i * side, side, side);
-    }
+    // ctx.fillStyle = '#33691E';
+    // // ctx.strokeStyle = '#33691E';
+    // // ctx.lineWidth = '1px';
+    // ctx.beginPath();
+    // for (i = 0; i < columns; ++ i) {
+    //     ctx.fillRect((i * gap) + 1, (i * gap) + 1, gap - 1 , gap - 1);
+    //     // ctx.strokeRect(i * side, i * side, side, side);
+    // }
 }
 
 

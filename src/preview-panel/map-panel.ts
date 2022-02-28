@@ -35,8 +35,8 @@ interface BinColorMap {
 
 type MapDataStruct = any[];// x,y,bin,bin
 
-const COLOR_PASS = ['#33691E', '#2E7D32', '#388E3C', '#43A047'];
-const COLOR_FAIL = ['#B71C1C', '#C62828', '#D32F2F', '#E53935', '#F44336'];
+const COLOR_PASS = ['#33FF00', '#33FF33', '#33FF66', '#33FF99'];
+const COLOR_FAIL = ['#FF0000', '#FF0033', '#FF0066', '#FF0099', '#990033', '#990066', '#990000'];
 
 export default class MapViewPanel extends PreviewPanel {
 
@@ -211,8 +211,27 @@ export default class MapViewPanel extends PreviewPanel {
 			name: record.fields[5].value,
 			count: record.fields[3].value,
 			flag: record.fields[4].value,
-			color: (record.fields[4].value === 'P' ? COLOR_PASS[this.passColorInc ++] : COLOR_FAIL[this.failColorInc ++])
+			color: this.makeBinColor(record.fields[2].value, record.fields[4].value === 'P')
 		});	
+	}
+
+	private makeBinColor(bin: number, pass: boolean): string {
+		let ret = this.binColorMap[bin];
+		if (!ret) {
+			if (pass) {
+				ret = COLOR_PASS[this.passColorInc ++];
+				if (this.passColorInc === COLOR_PASS.length) {
+					-- this.passColorInc;
+				}
+			} else {
+				ret = COLOR_FAIL[this.failColorInc ++];
+				if (this.failColorInc === COLOR_FAIL.length) {
+					-- this.failColorInc;
+				}				
+			}
+			this.binColorMap[bin] = ret;
+		}
+		return ret;
 	}
 
 	// private onPIR(record: Record.RecordBase): void {
@@ -223,14 +242,18 @@ export default class MapViewPanel extends PreviewPanel {
 		const x = record.fields[6].value;
 		const y = record.fields[7].value;
 
-		if (this.waferInfoData.minX > x)
+		if (this.waferInfoData.minX > x) {
 			this.waferInfoData.minX = x;
-		if (this.waferInfoData.maxX < x)
+		}
+		if (this.waferInfoData.maxX < x) {
 			this.waferInfoData.maxX = x;
-		if (this.waferInfoData.minY > y)
+		}
+		if (this.waferInfoData.minY > y) {
 			this.waferInfoData.minY = y;
-		if (this.waferInfoData.maxY < y)
+		}
+		if (this.waferInfoData.maxY < y) {
 			this.waferInfoData.maxY = y;
+		}
 
 		this.mapData.push([
 			x,
@@ -354,9 +377,9 @@ export default class MapViewPanel extends PreviewPanel {
 
 	makeMapData() {
 
-		this.binData.forEach(item => {
-			this.binColorMap[item.number] = item.color;
-		});
+		// this.binData.forEach(item => {
+		// 	this.binColorMap[item.number] = item.color;
+		// });
 
 		this.drawRectangle('canvas', this.waferInfoData.maxX, this.waferInfoData.maxY, {
 			bin: this.binColorMap,
