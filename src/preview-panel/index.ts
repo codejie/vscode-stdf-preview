@@ -10,7 +10,8 @@ const COMMAND_DRAWRECT: string = 'cmd_draw_rect';
 export interface Configuration {
     recordsIncluded: string[] | undefined,
     notShowMissingField: boolean,
-    showDescription: boolean 
+    showDescription: boolean,
+    drawBackgroundGrid?: boolean
 }
 
 export interface PreviewPanelOptions {
@@ -82,7 +83,8 @@ export abstract class PreviewPanel extends EventEmitter {
         const ret: Configuration = {
             recordsIncluded: included,
             notShowMissingField: config.get('notShowMissingField') || false,
-            showDescription: config.get('showFieldDescription') || false
+            showDescription: config.get('showFieldDescription') || false,
+            drawBackgroundGrid: config.get('drawBackgroundGrid')
         };
     
         return ret;

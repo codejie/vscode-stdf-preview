@@ -51,7 +51,7 @@
 				"title": "Detail Preview",
 				"category": "STDF",
 				"icon": "$(symbol-keyword)"
-			},			
+			},
 			{
 				"command": "stdf.records.preview",
 				"title": "Records Preview",
@@ -76,7 +76,7 @@
 					"command": "stdf.map.preview",
 					"when": "resourceFilename =~ /.*\\.(std|stdf)/",
 					"group": "navigation@2"
-				},				
+				},
 				{
 					"command": "stdf.detail.preview",
 					"when": "resourceFilename =~ /.*\\.(std|stdf)/",
@@ -115,7 +115,7 @@
 					"default": false,
 					"description": "Show the field description."
 				},
-				"STDF.Previwe.drawBackgroundGrid": {
+				"STDF.Preview.drawBackgroundGrid": {
 					"type": "boolean",
 					"default": true,
 					"description": "Draw background grid lines."
@@ -141,6 +141,7 @@
 		"@vscode/test-electron": "^2.0.3",
 		"eslint": "^8.6.0",
 		"glob": "^7.2.0",
+		"gridjs": "^5.0.2",
 		"mocha": "^9.1.3",
 		"typescript": "^4.5.4"
 	},

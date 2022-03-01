@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
+import { html } from 'gridjs';
 import { STDFAnalyser, Record } from 'stdf-analyser';
 import { PreviewPanel, ProcessArgs } from ".";
 
@@ -72,8 +73,8 @@ export default class MapViewPanel extends PreviewPanel {
     getHtml(): string {
 		const gridStyle = this.getResourceUri('grid/components.css');
 		// const commonScript = this.getResourceUri('grid/common.js');
-		const scriptUri = this.getResourceUri('grid/view-panel.js');
-		const gridUri = this.getResourceUri('grid/gridjs.umd.js');
+		const scriptUri = this.getResourceUri('grid/map-view-panel.js');
+		const gridUri = this.getResourceUri('grid/gridjs.module.js');
 		const styleMainUri = this.getResourceUri('grid/mermaid.min.css');
 
 		return `
@@ -96,10 +97,6 @@ export default class MapViewPanel extends PreviewPanel {
     }
 
 	async onFile(process: vscode.Progress<ProcessArgs>, filename: string): Promise<void> {
-
-		// this.drawRectangle('canvas', 0, 0, []);
-		// return Promise.resolve();
-
 		this.filename = filename;
 
 		this.viewPanel.title = path.basename(this.filename);
@@ -267,6 +264,7 @@ export default class MapViewPanel extends PreviewPanel {
 		const title ='<font size="6pt">Wafer Configuration</font>';
 		this.updateComponent('wafer_grid', title);
 	}
+
 	makeWaferInfoDtat() {
 		const data: any[] = [];
 		data.push([
@@ -335,7 +333,7 @@ export default class MapViewPanel extends PreviewPanel {
 			columns: [
 				{
 					name: 'Legend',
-					width: '10%',
+					width: '10%'
 				},
 				{
 					name: 'Number',
@@ -376,14 +374,10 @@ export default class MapViewPanel extends PreviewPanel {
 	}
 
 	makeMapData() {
-
-		// this.binData.forEach(item => {
-		// 	this.binColorMap[item.number] = item.color;
-		// });
-
 		this.drawRectangle('canvas', this.waferInfoData.maxX, this.waferInfoData.maxY, {
 			bin: this.binColorMap,
-			map: this.mapData
+			map: this.mapData,
+			grid: this.configuration.drawBackgroundGrid
 		});
 	}	
 }
