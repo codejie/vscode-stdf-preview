@@ -223,9 +223,9 @@ export default class ProfileViewPanel extends PreviewPanel {
 	private makeWaferInfoData() {
 		const data: any[] = [];
 		data.push(['WaferId', this.waferInfo.waferId, 'ProductId', this.waferInfo.partType]);
-		data.push(['LotId', this.waferInfo.lotId, 'subLotId', this.waferInfo.subLotId]);
-		data.push(['PassRate', `${((this.waferInfo.pass! / this.waferInfo.total!) * 100).toFixed(2)}% (${this.waferInfo.pass}/${this.waferInfo.total})`, 'jobName', this.waferInfo.jobName]);
-		data.push(['start', this.waferInfo.start, 'finish', this.waferInfo.finish]);
+		data.push(['LotId', this.waferInfo.lotId, 'SubLotId', this.waferInfo.subLotId]);
+		data.push(['PassRate', `${((this.waferInfo.pass! / this.waferInfo.total!) * 100).toFixed(2)}% (${this.waferInfo.pass}/${this.waferInfo.total})`, 'JobName', this.waferInfo.jobName]);
+		data.push(['Start', this.waferInfo.start, 'Finish', this.waferInfo.finish]);
 
 		this.updateComponentConfig('wafer_grid', {
 			columns: [
@@ -258,18 +258,18 @@ export default class ProfileViewPanel extends PreviewPanel {
 	private makeTestNumberData() {
 		const data: any[] = [];
 		this.testNumberData.forEach(item => {
-			data.push([item.number, item.name, item.count, `${((item.fail/item.count) * 100).toFixed(2)}%`,  (item.sum/(item.count - item.fail)).toFixed(4), item.min, item.max]);
+			data.push([item.number, item.name, item.count, `${((item.fail/item.count) * 100).toFixed(2)}%`,  (item.sum/(item.count - item.fail)).toFixed(4), item.min.toFixed(4), item.max.toFixed(4)]);
 		});
 
 		this.updateComponentConfig('testnumber_grid', {
 			columns: [
 				{
 					name: 'Number',
-					width: '20%',
+					width: '15%',
 				},
 				{
 					name: 'Name',
-					width: '20%',
+					width: '25%',
 					sort: false
 				},
 				{
@@ -316,25 +316,25 @@ export default class ProfileViewPanel extends PreviewPanel {
 			columns: [
 				{
 					name: 'Type',
-					width: '15%',
+					width: '10%',
 					sort: false
 				},
 				{
 					name: 'Number',
-					width: '20%'
+					width: '15%'
 				},
 				{
 					name: 'Name',
-					width: '20%',
+					width: '35%',
 					sort: false
 				},
 				{
 					name: `Count (Total:${this.waferInfo.total})`,
-					width: '20%'
+					width: '25%'
 				},
 				{
 					name: 'Flag',
-					width: '25%',
+					width: '15%',
 					sort: false
 				}
 			],

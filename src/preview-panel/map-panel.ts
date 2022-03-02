@@ -1,7 +1,6 @@
 import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
-import { html } from 'gridjs';
 import { STDFAnalyser, Record } from 'stdf-analyser';
 import { PreviewPanel, ProcessArgs } from ".";
 
@@ -27,17 +26,17 @@ interface BinDataStruct {
 	name: string,
 	count: number,
 	flag: string,
-	color: string
+	color?: string
 }
 
-interface BinColorMap {
-	[key: number]: string
-}
+// interface BinColorMap {
+// 	[key: number]: string
+// }
 
 type MapDataStruct = any[];// x,y,bin,bin
 
-const COLOR_PASS = ['#33FF00', '#33FF33', '#33FF66', '#33FF99'];
-const COLOR_FAIL = ['#FF0000', '#FF0033', '#FF0066', '#FF0099', '#990033', '#990066', '#990000'];
+// const COLOR_PASS = ['#00FF00', '#33FF33', '#33FF66', '#33FF99'];
+// const COLOR_FAIL = ['#FF0000', '#FF0033', '#FF0066', '#FF0099', '#990033', '#990066', '#990000'];
 
 export default class MapViewPanel extends PreviewPanel {
 
@@ -54,7 +53,10 @@ export default class MapViewPanel extends PreviewPanel {
 		maxY: Number.MIN_SAFE_INTEGER,
 		posY: ''			
 	};
-	private binColorMap: BinColorMap = {};
+
+	private passColor = 0x00FF00;
+	private failColor = 0xFF0000;
+	// private binColorMap: BinColorMap[] = [];
 
 	private passColorInc: number = 0;
 	private failColorInc: number = 0;
@@ -74,7 +76,7 @@ export default class MapViewPanel extends PreviewPanel {
 		const gridStyle = this.getResourceUri('grid/components.css');
 		// const commonScript = this.getResourceUri('grid/common.js');
 		const scriptUri = this.getResourceUri('grid/map-view-panel.js');
-		const gridUri = this.getResourceUri('grid/gridjs.module.js');
+		const gridUri = this.getResourceUri('grid/gridjs.umd.js');
 		const styleMainUri = this.getResourceUri('grid/mermaid.min.css');
 
 		return `
@@ -127,6 +129,8 @@ export default class MapViewPanel extends PreviewPanel {
 		}
 
 		input.close();
+
+		this.makeBinColor();
 
 		// this.makeMapDataComponent();
 		this.makeMapData();
@@ -208,27 +212,36 @@ export default class MapViewPanel extends PreviewPanel {
 			name: record.fields[5].value,
 			count: record.fields[3].value,
 			flag: record.fields[4].value,
-			color: this.makeBinColor(record.fields[2].value, record.fields[4].value === 'P')
-		});	
+			// color: this.makeBinColor(record.fields[2].value, record.fields[4].value === 'P')
+		});
 	}
 
-	private makeBinColor(bin: number, pass: boolean): string {
-		let ret = this.binColorMap[bin];
-		if (!ret) {
-			if (pass) {
-				ret = COLOR_PASS[this.passColorInc ++];
-				if (this.passColorInc === COLOR_PASS.length) {
-					-- this.passColorInc;
-				}
+	private makeBinColor(): void {
+
+		this.binData.sort((a, b) => {
+			if (a.number < b.number)
+				return -1;
+			else if (a.number > b.number)
+				return 1;
+			else
+				return 0;
+		});
+
+		this.binData.forEach(item => {
+			if (item.flag === 'P') {
+				item.color = `#${('000000' + this.passColor.toString(16)).slice(-6)}`;
+				this.passColor += 0x33;
 			} else {
-				ret = COLOR_FAIL[this.failColorInc ++];
-				if (this.failColorInc === COLOR_FAIL.length) {
-					-- this.failColorInc;
-				}				
+				item.color = `#${('000000' + this.failColor.toString(16)).slice(-6)}`;
+				if (this.failColor === 0xFF00FF) {
+					this.failColor = 0xFF6600;
+				} else if (this.failColor === 0xFF66FF) {
+					this.failColor = 0xFF9900
+				} else {
+					this.failColor += 0x33;
+				}
 			}
-			this.binColorMap[bin] = ret;
-		}
-		return ret;
+		});
 	}
 
 	// private onPIR(record: Record.RecordBase): void {
@@ -282,33 +295,27 @@ export default class MapViewPanel extends PreviewPanel {
 			columns: [
 				{
 					name: 'Item',
-					width: '20%',
-					hide: true,
+					width: '10%'
 				},
 				{
 					name: 'Value',
-					width: '20%',
-					hide: true,
+					width: '25%'
 				},
 				{
 					name: 'Item',
-					width: '15%',
-					hide: true,
+					width: '10%'
 				},
 				{
 					name: 'Value',
-					width: '15%',
-					hide: true,
+					width: '25%'
 				},
 				{
 					name: 'Item',
-					width: '15%',
-					hide: true,
+					width: '10%'
 				},
 				{
 					name: 'Value',
-					width: '15%',
-					hide: true,
+					width: '25%'
 				},				
 			],
 			data: data
@@ -322,47 +329,52 @@ export default class MapViewPanel extends PreviewPanel {
 
 	private makeBinData(): void {
 		const data: any[] = [];
-		for (let i = 0; i < this.binData.length; i += 2) {
+		for (let i = 0; i < this.binData.length; i += 3) {
 			data.push([
-				this.binData[i].color, this.binData[i].number, this.binData[i].name, this.binData[i].count,
-				this.binData[i+1].color, this.binData[i+1].number, this.binData[i+1].name, this.binData[i+1].count
+				this.binData[i].number, this.binData[i].count, this.binData[i].name,
+				this.binData[i+1].number, this.binData[i+1].count, this.binData[i+1].name,
+				this.binData[i+2].number, this.binData[i+2].count, this.binData[i+2].name
 			]);
 		}
 
 		this.updateComponentConfig('bin_grid', {
 			columns: [
 				{
-					name: 'Legend',
-					width: '10%'
-				},
-				{
 					name: 'Number',
-					width: '15%'
-				},
-				{
-					name: 'Name',
-					width: '15%',
+					width: '5%'
 				},
 				{
 					name: `Count`,
-					width: '10%'
-				},
+					width: '8%'
+				},				
 				{
-					name: 'Legend',
-					width: '10%',
+					name: 'Name',
+					width: '17%',
 				},
 				{
 					name: 'Number',
-					width: '15%'
-				},
-				{
-					name: 'Name',
-					width: '15%',
+					width: '5%'
 				},
 				{
 					name: `Count`,
-					width: '10%'
-				}	
+					width: '8%'
+				},				
+				{
+					name: 'Name',
+					width: '17%',
+				},
+				{
+					name: 'Number',
+					width: '5%'
+				},
+				{
+					name: `Count`,
+					width: '8%'
+				},				
+				{
+					name: 'Name',
+					width: '17%',
+				}								
 			],
 			data: data
 		});
@@ -375,7 +387,7 @@ export default class MapViewPanel extends PreviewPanel {
 
 	makeMapData() {
 		this.drawRectangle('canvas', this.waferInfoData.maxX, this.waferInfoData.maxY, {
-			bin: this.binColorMap,
+			bin: this.binData, // this.binColorMap,
 			map: this.mapData,
 			grid: this.configuration.drawBackgroundGrid
 		});

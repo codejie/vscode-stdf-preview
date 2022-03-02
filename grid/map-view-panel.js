@@ -1,5 +1,3 @@
-import  { html }  from 'gridjs';
-
 const vscode = acquireVsCodeApi();
 
 window.addEventListener('message', (event) => {
@@ -26,10 +24,6 @@ window.addEventListener('message', (event) => {
 // }
 
 function onCommandConfig(component, data) {
-    if (component === 'bin_grid') {
-        data.columns[0].formatter = (cell) => `<b>${cell}</b>`;
-    }
-
     const grid = new gridjs.Grid({
         ...data,
         style: {
@@ -76,17 +70,18 @@ function drawRectangles(id, maxX, maxY, data) {
     const canvas = document.getElementById(id);    
     const ctx = canvas.getContext('2d');
 
-    const width = Math.min( window.innerWidth, window.innerHeight * 0.95);
+    const width = Math.min(window.innerWidth, window.innerHeight * 0.96);
     const columns = Math.max(maxX, maxY);
 
-    canvas.width  = width;//window.innerWidth * 0.9;
-    canvas.height = width;//window.innerHeight * 0.9;
+    canvas.width  = window.innerWidth;
+    canvas.height = width;//window.innerHeight;
 
     const gap = width / columns;
 
-    ctx.strokeStyle = 'grey';
-    ctx.lineWidth = 1;
     if (data.grid) {
+        ctx.strokeStyle = 'grey';
+        ctx.lineWidth = 1;
+
         ctx.beginPath();
         for (i = 0; i < (columns + 1); ++ i) {
             // ctx.beginPath();
@@ -100,57 +95,42 @@ function drawRectangles(id, maxX, maxY, data) {
             ctx.stroke();
         }    
     }
-
     // ctx.beginPath();
     data.map.forEach(item => {
         ctx.beginPath();
-        ctx.fillStyle = data.bin[item[2]];
+        ctx.fillStyle = data.bin.find(bin => bin.number === item[2]).color;
         ctx.fillRect(item[0] * gap + 1, item[1] * gap + 1, gap - 1, gap - 1);
     });
+
+    drawBinLegends(ctx, width + 10, 30, 100, width, data.bin);
 }
 
+function drawBinLegends(ctx, x, y, width, height, data) {
+    ctx.beginPath();
+    ctx.font = '16px serif';
 
-// function drawRectangles(id, maxX, maxY, data) {
-//     createCanvasSection('map-container', id);
+    let posY = height - 25;
+    for (let i = data.length - 1; i >= 0; -- i) {
+        const item = data[i];
+        ctx.fillStyle = item.color;
+        ctx.fillRect(x, posY, 15, 15);
+        
+        ctx.fillText(item.number.toString(), x + 20, posY + 13);
 
-//     const canvas = document.getElementById(id);
-//     console.log('canvas - ' + canvas.width);
-//     console.log('canvas - ' + canvas.height);
-    
-//     const ctx = canvas.getContext('2d');
+        posY -= 25;
+    }
+}
 
-//     const width = Math.min( window.innerWidth, window.innerHeight * 0.95);
-
-//     canvas.width  = width;//window.innerWidth * 0.9;
-//     canvas.height = width;//window.innerHeight * 0.9;
-//     console.log('canvas end - ' + canvas.width);
-//     console.log('canvas end - ' + canvas.height);
-
-//     console.log('min width end - ' + width);
-//     const gap = width / 100;
-
-//     ctx.strokeStyle = 'grey';
-//     ctx.lineWidth = .1;
-
+// function drawBinLegends(ctx, x, y, width, height, data) {
 //     ctx.beginPath();
-//     for (i = 0; i < 101; ++ i) {
-//         // ctx.beginPath();
-//         ctx.moveTo(0, i * gap);
-//         ctx.lineTo(width, i * gap);
-//         ctx.stroke();
+//     ctx.font = '16px serif';
+//     let posY = y;
+//     data.forEach(item => {
+//         ctx.fillStyle = item.color;
+//         ctx.fillRect(x, y, 15, 15);
+        
+//         ctx.fillText(item.number.toString(), x + 20, y + 13);
 
-//         // ctx.beginPath();
-//         ctx.moveTo(i * gap, 0);
-//         ctx.lineTo(i * gap, width);
-//         ctx.stroke();
-//     }    
-
-//     ctx.fillStyle = '#33691E';
-//     ctx.strokeStyle = 'blue';
-//     // ctx.lineWidth = '1px';
-//     ctx.beginPath();
-//     for (i = 0; i < 100; ++ i) {
-//         ctx.fillRect((i * gap) + 1, (i * gap) + 1, gap - 1 , gap - 1);
-//         // ctx.strokeRect(i * side, i * side, side, side);
-//     }
+//         y += 25;
+//     });
 // }

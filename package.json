@@ -13,12 +13,11 @@
 		"onCommand:vscode-stdf-preview.helloWorld",
 		"onCommand:stdf.profile.preview",
 		"onCommand:stdf.map.preview",
-		"onCommand:stdf.detail.preview",
 		"onCommand:stdf.records.preview",
-		"onCommand:stdf.shift.preview",
 		"onLanguage:stdf"
 	],
 	"main": "./out/extension.js",
+	"icon": "stdf.preview.png",
 	"contributes": {
 		"languages": [
 			{
@@ -47,20 +46,8 @@
 				"icon": "$(symbol-keyword)"
 			},
 			{
-				"command": "stdf.detail.preview",
-				"title": "Detail Preview",
-				"category": "STDF",
-				"icon": "$(symbol-keyword)"
-			},
-			{
 				"command": "stdf.records.preview",
 				"title": "Records Preview",
-				"category": "STDF",
-				"icon": "$(symbol-keyword)"
-			},
-			{
-				"command": "stdf.shift.preview",
-				"title": "Shift Preview",
 				"category": "STDF",
 				"icon": "$(symbol-keyword)"
 			}
@@ -78,21 +65,9 @@
 					"group": "navigation@2"
 				},
 				{
-					"command": "stdf.detail.preview",
-					"when": "resourceFilename =~ /.*\\.(std|stdf)/",
-					"group": "navigation@3"
-				},
-				{
 					"command": "stdf.records.preview",
 					"when": "resourceFilename =~ /.*\\.(std|stdf)/",
-					"group": "navigation@4"
-				}
-			],
-			"editor/title": [
-				{
-					"command": "stdf.shift.preview",
-					"when": "resourceFilename =~ /.*\\.(std|stdf)/",
-					"group": "navigation@1"
+					"group": "navigation@3"
 				}
 			]
 		},
@@ -117,7 +92,7 @@
 				},
 				"STDF.Preview.drawBackgroundGrid": {
 					"type": "boolean",
-					"default": true,
+					"default": false,
 					"description": "Draw background grid lines."
 				}
 			}
@@ -141,7 +116,6 @@
 		"@vscode/test-electron": "^2.0.3",
 		"eslint": "^8.6.0",
 		"glob": "^7.2.0",
-		"gridjs": "^5.0.2",
 		"mocha": "^9.1.3",
 		"typescript": "^4.5.4"
 	},

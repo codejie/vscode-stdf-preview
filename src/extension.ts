@@ -40,11 +40,11 @@ export function activate(context: vscode.ExtensionContext) {
 	});
 	context.subscriptions.push(map);	
 
-	let detail = vscode.commands.registerCommand('stdf.detail.preview', (args) => {
-		const detailViewPanel = new DetailViewPanel(context.extensionUri, vscode.ViewColumn.One, status);
-		return detailViewPanel.viewPanel;
-	});
-	context.subscriptions.push(detail);	
+	// let detail = vscode.commands.registerCommand('stdf.detail.preview', (args) => {
+	// 	const detailViewPanel = new DetailViewPanel(context.extensionUri, vscode.ViewColumn.One, status);
+	// 	return detailViewPanel.viewPanel;
+	// });
+	// context.subscriptions.push(detail);	
 
 	let records = vscode.commands.registerCommand('stdf.records.preview', (args) => {
 		const recordsViewPanel = new RecordsViewPanel(context.extensionUri, vscode.ViewColumn.One, status);
