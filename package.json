@@ -2,7 +2,11 @@
 	"name": "vscode-stdf-preview",
 	"displayName": "STDF Preview",
 	"description": "vscode extension to preview STDF files.",
-	"version": "0.0.1",
+	"version": "1.0.0",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/codejie/vscode-stdf-preview"
+	},
 	"engines": {
 		"vscode": "^1.64.0"
 	},

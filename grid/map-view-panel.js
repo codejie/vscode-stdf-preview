@@ -102,7 +102,7 @@ function drawRectangles(id, maxX, maxY, data) {
         ctx.fillRect(item[0] * gap + 1, item[1] * gap + 1, gap - 1, gap - 1);
     });
 
-    drawBinLegends(ctx, width + 10, 30, 100, width, data.bin);
+    drawBinLegends(ctx, width + 20, 30, 100, width, data.bin);
 }
 
 function drawBinLegends(ctx, x, y, width, height, data) {
