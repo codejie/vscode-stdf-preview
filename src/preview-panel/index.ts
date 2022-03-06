@@ -11,7 +11,8 @@ export interface Configuration {
     recordsIncluded: string[] | undefined,
     notShowMissingField: boolean,
     showDescription: boolean,
-    drawBackgroundGrid?: boolean
+    drawBackgroundGrid?: boolean,
+    useFieldOriginalValue: boolean
 }
 
 export interface PreviewPanelOptions {
@@ -84,7 +85,8 @@ export abstract class PreviewPanel extends EventEmitter {
             recordsIncluded: included,
             notShowMissingField: config.get('notShowMissingField') || false,
             showDescription: config.get('showFieldDescription') || false,
-            drawBackgroundGrid: config.get('drawBackgroundGrid')
+            drawBackgroundGrid: config.get('drawBackgroundGrid'),
+            useFieldOriginalValue: config.get('useFieldOriginalValue') || false,
         };
     
         return ret;

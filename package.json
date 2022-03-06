@@ -3,6 +3,7 @@
 	"displayName": "STDF Preview",
 	"description": "vscode extension to preview STDF files.",
 	"version": "1.0.0",
+	"publisher": "codejie",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/codejie/vscode-stdf-preview"
@@ -98,6 +99,11 @@
 					"type": "boolean",
 					"default": false,
 					"description": "Draw background grid lines."
+				},
+				"STDF.Preview.useFieldOriginalValue": {
+					"type": "boolean",
+					"default": false,
+					"description": "Show the field original value, not the value escaped according to STDF specification."
 				}
 			}
 		}
@@ -124,6 +130,6 @@
 		"typescript": "^4.5.4"
 	},
 	"dependencies": {
-		"stdf-analyser": "^1.0.3"
+		"stdf-analyser": "^1.0.4"
 	}
 }

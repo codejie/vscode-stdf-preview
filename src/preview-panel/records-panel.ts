@@ -156,6 +156,7 @@ export default class RecordsViewPanel extends PreviewPanel {
 	private makeGridData(record: Record.RecordBase): any {
 		const showDesc = this.configuration.showDescription;
 		const notMissing = this.configuration.notShowMissingField;
+		const originalValue = this.configuration.useFieldOriginalValue;
 		const ret = [];
 
 		if (!showDesc) {
@@ -166,7 +167,7 @@ export default class RecordsViewPanel extends PreviewPanel {
 				}
 
 				t.push(field.name);
-				t.push(field.toValueNotes());
+				t.push(originalValue ? field.value : field.toValueNotes());
 				if (t.length === 4) {
 					ret.push(t);
 					t = [];
@@ -181,7 +182,7 @@ export default class RecordsViewPanel extends PreviewPanel {
 				if (notMissing && field.value === undefined) {
 					continue;
 				}
-				ret.push([no ++, field.name, field.toValueNotes(), field.desc]);
+				ret.push([no ++, field.name, (originalValue ? field.value : field.toValueNotes()), field.desc]);
 			}
 		}
 
