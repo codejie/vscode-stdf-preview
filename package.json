@@ -17,7 +17,8 @@
 	"activationEvents": [
 		"onCommand:vscode-stdf-preview.helloWorld",
 		"onCommand:stdf.profile.preview",
-		"onCommand:stdf.map.preview",
+		"onCommand:stdf.map.sbin.preview",
+		"onCommand:stdf.map.param.preview",
 		"onCommand:stdf.records.preview",
 		"onLanguage:stdf"
 	],
@@ -45,11 +46,17 @@
 				"icon": "$(symbol-keyword)"
 			},
 			{
-				"command": "stdf.map.preview",
-				"title": "Map Preview",
+				"command": "stdf.map.sbin.preview",
+				"title": "SBin Map Preview",
 				"category": "STDF",
 				"icon": "$(symbol-keyword)"
 			},
+			{
+				"command": "stdf.map.param.preview",
+				"title": "Parametric Map Preview",
+				"category": "STDF",
+				"icon": "$(symbol-keyword)"
+			},			
 			{
 				"command": "stdf.records.preview",
 				"title": "Records Preview",
@@ -65,17 +72,35 @@
 					"group": "navigation@1"
 				},
 				{
-					"command": "stdf.map.preview",
+					"command": "stdf.records.preview",
 					"when": "resourceFilename =~ /.*\\.(std|stdf)/",
 					"group": "navigation@2"
-				},
+				},				
 				{
-					"command": "stdf.records.preview",
+					"submenu": "stdf.menu.map.preview",
 					"when": "resourceFilename =~ /.*\\.(std|stdf)/",
 					"group": "navigation@3"
 				}
+			],
+			"stdf.menu.map.preview": [
+				{
+					"command": "stdf.map.sbin.preview",
+					"when": "resourceFilename =~ /.*\\.(std|stdf)/",
+					"group": "navigation@4"
+				},
+				{
+					"command": "stdf.map.param.preview",
+					"when": "resourceFilename =~ /.*\\.(std|stdf)/",
+					"group": "navigation@5"
+				}				
 			]
 		},
+		"submenus": [
+			{
+				"id": "stdf.menu.map.preview",
+				"label": "Map Preview"
+			}
+		],
 		"keybindings": [],
 		"configuration": {
 			"title": "STDF Preview",

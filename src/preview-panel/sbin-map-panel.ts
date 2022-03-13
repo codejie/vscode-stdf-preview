@@ -1,3 +1,4 @@
+/* eslint-disable curly */
 import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -38,7 +39,7 @@ type MapDataStruct = any[];// x,y,bin,bin
 // const COLOR_PASS = ['#00FF00', '#33FF33', '#33FF66', '#33FF99'];
 // const COLOR_FAIL = ['#FF0000', '#FF0033', '#FF0066', '#FF0099', '#990033', '#990066', '#990000'];
 
-export default class MapViewPanel extends PreviewPanel {
+export default class SBinMapViewPanel extends PreviewPanel {
 
 	private processIncrement: number = 0;
 
@@ -58,15 +59,15 @@ export default class MapViewPanel extends PreviewPanel {
 	private failColor = 0xFF0000;
 	// private binColorMap: BinColorMap[] = [];
 
-	private passColorInc: number = 0;
-	private failColorInc: number = 0;
+	// private passColorInc: number = 0;
+	// private failColorInc: number = 0;
 
     constructor(uri: vscode.Uri, column: vscode.ViewColumn, status: vscode.StatusBarItem) {
         super({
             uri: uri,
-            name: 'Map Preview',
+            name: 'SBin Map Preview',
             column: column || vscode.ViewColumn.One,
-            type: 'map.type',
+            type: 'sbin.map.type',
             resourcePath: ['grid'],
 			status: status
         });
@@ -75,7 +76,7 @@ export default class MapViewPanel extends PreviewPanel {
     getHtml(): string {
 		const gridStyle = this.getResourceUri('grid/components.css');
 		// const commonScript = this.getResourceUri('grid/common.js');
-		const scriptUri = this.getResourceUri('grid/map-view-panel.js');
+		const scriptUri = this.getResourceUri('grid/sbin-map-view-panel.js');
 		const gridUri = this.getResourceUri('grid/gridjs.umd.js');
 		const styleMainUri = this.getResourceUri('grid/mermaid.min.css');
 
@@ -89,10 +90,10 @@ export default class MapViewPanel extends PreviewPanel {
 				<script type="text/javascript" src="${scriptUri}"></script>				
 			</head>
 			<body>
+				<div id="container" width="100%"/>
 				<div id="map-container" width="100%" height="100%">
 					<canvas id="canvas"/>
 				</div>
-				<div id="container" width="100%"/>
 			</body>
 			</html>
 		`;
@@ -236,7 +237,7 @@ export default class MapViewPanel extends PreviewPanel {
 				if (this.failColor === 0xFF00FF) {
 					this.failColor = 0xFF6600;
 				} else if (this.failColor === 0xFF66FF) {
-					this.failColor = 0xFF9900
+					this.failColor = 0xFF9900;
 				} else {
 					this.failColor += 0x33;
 				}

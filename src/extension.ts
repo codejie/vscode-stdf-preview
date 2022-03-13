@@ -5,7 +5,8 @@ import { Configuration } from './preview-panel';
 import DetailViewPanel from './preview-panel/detail-panel';
 import RecordsViewPanel from './preview-panel/records-panel';
 import ProfileViewPanel from './preview-panel/profile-panel';
-import MapViewPanel from './preview-panel/map-panel';
+import SBinMapViewPanel from './preview-panel/sbin-map-panel';
+import ParamMapViewPanel from './preview-panel/param-map-panel';
 
 
 // this method is called when your extension is activated
@@ -33,18 +34,19 @@ export function activate(context: vscode.ExtensionContext) {
 	});
 	context.subscriptions.push(profile);
 
-	let map = vscode.commands.registerCommand('stdf.map.preview', (args) => {
-		const mapViewPanel = new MapViewPanel(context.extensionUri, vscode.ViewColumn.One, status);
+	let map = vscode.commands.registerCommand('stdf.map.sbin.preview', (args) => {
+		const mapViewPanel = new SBinMapViewPanel(context.extensionUri, vscode.ViewColumn.One, status);
 		mapViewPanel.emit('args', args);
 		return mapViewPanel.viewPanel;
 	});
 	context.subscriptions.push(map);	
 
-	// let detail = vscode.commands.registerCommand('stdf.detail.preview', (args) => {
-	// 	const detailViewPanel = new DetailViewPanel(context.extensionUri, vscode.ViewColumn.One, status);
-	// 	return detailViewPanel.viewPanel;
-	// });
-	// context.subscriptions.push(detail);	
+	let param = vscode.commands.registerCommand('stdf.map.param.preview', (args) => {
+		const panel = new ParamMapViewPanel(context.extensionUri, vscode.ViewColumn.One, status);
+		panel.emit('args', args);
+		return panel.viewPanel;
+	});
+	context.subscriptions.push(param);	
 
 	let records = vscode.commands.registerCommand('stdf.records.preview', (args) => {
 		const recordsViewPanel = new RecordsViewPanel(context.extensionUri, vscode.ViewColumn.One, status);
