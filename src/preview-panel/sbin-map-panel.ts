@@ -5,7 +5,6 @@ import * as path from 'path';
 import { STDFAnalyser, Record } from 'stdf-analyser';
 import { PreviewPanel, ProcessArgs } from ".";
 
-
 interface WaferInfoStruct {
 	waferId?: string,
 	partType?: string,
@@ -74,8 +73,7 @@ export default class SBinMapViewPanel extends PreviewPanel {
     }
 
     getHtml(): string {
-		const gridStyle = this.getResourceUri('grid/components.css');
-		// const commonScript = this.getResourceUri('grid/common.js');
+		const gridStyle = this.getResourceUri('grid/sbin-map-view-panel.css');
 		const scriptUri = this.getResourceUri('grid/sbin-map-view-panel.js');
 		const gridUri = this.getResourceUri('grid/gridjs.umd.js');
 		const styleMainUri = this.getResourceUri('grid/mermaid.min.css');
@@ -86,14 +84,14 @@ export default class SBinMapViewPanel extends PreviewPanel {
 			<head>
 				<link href="${gridStyle}" rel="stylesheet"/>
 				<link href="${styleMainUri}" rel="stylesheet"/>
-				<script type="text/javascript" src=${gridUri}></script>
-				<script type="text/javascript" src="${scriptUri}"></script>				
+				<script type="text/javascript" src=${gridUri}></script>			
 			</head>
 			<body>
 				<div id="container" width="100%"/>
 				<div id="map-container" width="100%" height="100%">
 					<canvas id="canvas"/>
 				</div>
+				<script type="text/javascript" src="${scriptUri}"></script>	
 			</body>
 			</html>
 		`;

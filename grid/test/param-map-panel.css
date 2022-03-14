@@ -1,16 +1,20 @@
 .container {
     height: auto;
     overflow: hidden;
+    border: 1px solid blue;
 }
 .right {
-    width: 50%;
+    width: 70%;
+    height: 100%;
     float: right;
     background: #fffc54;
 }
 .left {
-    background: chocolate;
-    width: 50%;
+    width: 30%;
+    height: 100%;
     overflow: hidden;
+    /* background: chocolate; */
+    /* border: 1px solid red; */
 }
 
 #canvas { 
@@ -18,5 +22,46 @@
     height: 100%;
     display: block;
     /* margin-left: 60px; */
-    border: 1px solid red;
+    border: 1px solid rgba(199, 48, 48, 0.605);
 }
+
+.row1 {
+    border: 1px solid black;
+}
+
+.fixheader {
+    padding: 10px 16px;
+    background: #555;
+    color: #f1f1f1;
+    /* position: fixed; */
+    top: 0;
+    width: 100%
+}
+
+/* .table_wrapper {
+    display: grid;    
+} */
+
+.table_first_row_col {
+    border:  1px solid black;
+    padding-left: 5px;    
+}
+
+.table_first_row {
+    border-top: 1px solid black;
+    border-right: 1px solid black;
+    border-bottom: 1px solid black;    
+}
+
+.table_first_col {
+    border-left: 1px solid black;
+    border-right: 1px solid black;
+    border-bottom: 1px solid black;    
+}
+
+.table_others {
+    border-right: 1px solid black;
+    border-bottom: 1px solid black;      
+}
+
+
