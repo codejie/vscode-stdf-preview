@@ -17,7 +17,7 @@ interface WaferInfoStruct {
 }
 
 interface TestNumberItemStruct {
-    [key: number]: {
+    [key: number]: { // test
         number: number,
         testName: string,
         seqName: string,
@@ -30,7 +30,7 @@ interface TestNumberItemStruct {
 }
 
 interface TestNumberDataStruct {
-    [key: string]: {
+    [key: string]: { // test + text
         number: number,
         text: string,
         unit: string,
@@ -38,9 +38,37 @@ interface TestNumberDataStruct {
         high: number,
         min: number,
         max: number,
-        data: number[][] // x, y, hbin, sbin, value
+        data: number[][] // x, y, hbin, sbin, result
     }
 }
+
+interface PTRDataStruct {
+	head: number,
+	site: number,
+	number: number,
+	text: string,
+	unit: string,
+	low: number,
+	high: number,
+	result: number
+}
+
+interface PRRDataStruct {
+	head: number,
+	site: number,
+	x: number,
+	y: number,
+	hbin: number,
+	sbin: number
+}
+
+type DieInfoStruct = {
+	minX: number,
+	maxX: number,
+	minY: number,
+	maxY: number
+}
+
 
 export default class ParamMapViewPanel extends PreviewPanel {
     private processIncrement: number = 0;
@@ -48,6 +76,16 @@ export default class ParamMapViewPanel extends PreviewPanel {
     private waferInfo: WaferInfoStruct = {};
     private numberItems: TestNumberItemStruct = {};
     private numberData: TestNumberDataStruct = {};
+
+	private ptrData: PTRDataStruct[] = [];
+	private prrData: PRRDataStruct[] = [];
+
+	private dieInfo: DieInfoStruct = {
+		minX: Number.MAX_SAFE_INTEGER,
+		maxX: Number.MIN_SAFE_INTEGER,
+		minY: Number.MAX_SAFE_INTEGER,
+		maxY: Number.MIN_SAFE_INTEGER
+	};
 
     constructor(uri: vscode.Uri, column: vscode.ViewColumn, status: vscode.StatusBarItem) {
         super({
@@ -124,8 +162,7 @@ export default class ParamMapViewPanel extends PreviewPanel {
 			});
 		}
 
-		input.close();
-
+		input.close();		
 
 		process.report({
 			increment: 100,
@@ -209,12 +246,67 @@ export default class ParamMapViewPanel extends PreviewPanel {
     }
     
 	private onPIR(record: Record.RecordBase): void {
-        
-    } 
+		this.ptrData.forEach(ptr => {
+			const prr = this.prrData.find(item => (item.head === ptr.head && item.site === ptr.site));
+			if (prr) {
+				const index = this.makeNumberIndex(ptr.number, ptr.text);
+				const data = this.numberData[index];
+				if (data) {
+					if (data.min > ptr.result) data.min = ptr.result;
+					if (data.max < ptr.result) data.max = ptr.result;
+					data.data.push([prr.x, prr.y, prr.hbin, prr.sbin, ptr.result]);
+				} else {
+					this.numberData[index] = {
+						number: ptr.number,
+						text: ptr.text,
+						unit: ptr.unit,
+						low: ptr.low,
+						high: ptr.high,
+						min: ptr.result,
+						max: ptr.result,
+						data: [[prr.x, prr.y, prr.hbin, prr.sbin, ptr.result]]
+					};
+				}
+
+				if (this.dieInfo.minX > prr.x) this.dieInfo.minX = prr.x;
+				if (this.dieInfo.maxX < prr.x) this.dieInfo.maxX = prr.x;
+				if (this.dieInfo.minY > prr.y) this.dieInfo.minY = prr.y;
+				if (this.dieInfo.maxY < prr.y) this.dieInfo.maxY = prr.y;
+			} else {
+				console.log(`CANNOT find x/y - ${ptr.head}-${ptr.site}`);
+			}
+		});
+
+		this.ptrData = [];
+		this.prrData = [];
+    }
+
+	private makeNumberIndex(number: number, text: string): string {
+		return `${number}-${text}`;
+	}
     
 	private onPTR(record: Record.RecordBase): void {
+		this.ptrData.push({
+			head: record.fields[1].value,
+			site: record.fields[2].value,
+			number: record.fields[0].value,
+			text: record.fields[6].value,
+			unit: record.fields[14].value,
+			low: record.fields[12].value,
+			high: record.fields[13].value,
+			result: record.fields[5].value
+		});
     } 
     
 	private onPRR(record: Record.RecordBase): void {
-    }     
+		this.prrData.push({
+			head: record.fields[0].value,
+			site: record.fields[1].value,
+			hbin: record.fields[4].value,
+			sbin: record.fields[5].value,
+			x: record.fields[6].value,
+			y: record.fields[7].value
+		});
+    }
+
 }

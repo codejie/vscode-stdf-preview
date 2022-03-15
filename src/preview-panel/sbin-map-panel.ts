@@ -38,6 +38,10 @@ type MapDataStruct = any[];// x,y,bin,bin
 // const COLOR_PASS = ['#00FF00', '#33FF33', '#33FF66', '#33FF99'];
 // const COLOR_FAIL = ['#FF0000', '#FF0033', '#FF0066', '#FF0099', '#990033', '#990066', '#990000'];
 
+const COMMAND_CONFIG: string = 'cmd_config';
+const COMMAND_COMPONENT: string = 'cmd_component';
+const COMMAND_DRAWRECT: string = 'cmd_draw_rect';
+
 export default class SBinMapViewPanel extends PreviewPanel {
 
 	private processIncrement: number = 0;
@@ -390,7 +394,30 @@ export default class SBinMapViewPanel extends PreviewPanel {
 			map: this.mapData,
 			grid: this.configuration.drawBackgroundGrid
 		});
-	}	
+	}
+	
+    protected updateComponentConfig(component: string, config: any): void {
+        this.postViewMessage(COMMAND_CONFIG, {
+            component,
+            data: config
+        });
+    }
+
+    protected updateComponent(id: string, title: string): void {
+        this.postViewMessage(COMMAND_COMPONENT, {
+            id,
+            title
+        });
+    }
+
+    protected drawRectangle(id: string, maxX: number, maxY: number, data: any) {
+        this.postViewMessage(COMMAND_DRAWRECT, {
+            id,
+            maxX,
+            maxY,
+            data
+        });
+    }	
 }
 
 

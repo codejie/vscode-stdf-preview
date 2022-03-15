@@ -4,11 +4,18 @@ import * as path from 'path';
 import { STDFAnalyser, Record } from 'stdf-analyser';
 import { PreviewPanel, ProcessArgs } from ".";
 
+const COMMAND_CONFIG: string = 'cmd_config';
+const COMMAND_COMPONENT: string = 'cmd_component';
+const COMMAND_DRAWRECT: string = 'cmd_draw_rect';
+
 export default class RecordsViewPanel extends PreviewPanel {
 
 	private processIncrement: number = 0;
-
     private recordIncrement: number = 0;
+
+	private recordCount: {
+		[key: string]: number
+	} = {};
 
     constructor(uri: vscode.Uri, column: vscode.ViewColumn, status: vscode.StatusBarItem) {
         super({
@@ -71,6 +78,18 @@ export default class RecordsViewPanel extends PreviewPanel {
 				break;
 			}
 			await analyser.analyseSync(<Buffer>chunk, (record) => {
+				if (this.configuration.recordsLimited !== 0) {
+					if (this.recordCount[record.name] !== undefined) {
+						if (this.recordCount[record.name] === this.configuration.recordsLimited) {
+							this.configuration.recordsIncluded = this.configuration.recordsIncluded?.filter(item => item !== record.name);
+							analyser.updateIncluded(this.configuration.recordsIncluded!);
+							return Promise.resolve();
+						}
+						++ this.recordCount[record.name];
+					} else {
+						this.recordCount[record.name] = 1;
+					}
+				}
 				return this.onRecord(process, record);
 			});
 		}
@@ -157,6 +176,8 @@ export default class RecordsViewPanel extends PreviewPanel {
 		const showDesc = this.configuration.showDescription;
 		const notMissing = this.configuration.notShowMissingField;
 		const originalValue = this.configuration.useFieldOriginalValue;
+		const recordsLimited = this.configuration.recordsLimited;
+
 		const ret = [];
 
 		if (!showDesc) {
@@ -188,5 +209,28 @@ export default class RecordsViewPanel extends PreviewPanel {
 
 		return ret;
 	}
+
+    protected updateComponentConfig(component: string, config: any): void {
+        this.postViewMessage(COMMAND_CONFIG, {
+            component,
+            data: config
+        });
+    }
+
+    protected updateComponent(id: string, title: string): void {
+        this.postViewMessage(COMMAND_COMPONENT, {
+            id,
+            title
+        });
+    }
+
+    protected drawRectangle(id: string, maxX: number, maxY: number, data: any) {
+        this.postViewMessage(COMMAND_DRAWRECT, {
+            id,
+            maxX,
+            maxY,
+            data
+        });
+    }	
 }
 

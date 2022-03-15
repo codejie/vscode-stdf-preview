@@ -40,6 +40,10 @@ interface BinDataStruct {
 
 // const TestNumberDataFields = ['Type', 'Number', 'Name', 'Count', 'Fail', 'Min', 'Max', 'Avg'];
 
+const COMMAND_CONFIG: string = 'cmd_config';
+const COMMAND_COMPONENT: string = 'cmd_component';
+const COMMAND_DRAWRECT: string = 'cmd_draw_rect';
+
 export default class ProfileViewPanel extends PreviewPanel {
 
 	private processIncrement: number = 0;
@@ -341,7 +345,30 @@ export default class ProfileViewPanel extends PreviewPanel {
 			data: data,
 			sort: true
 		});
-	}	
+	}
+
+    protected updateComponentConfig(component: string, config: any): void {
+        this.postViewMessage(COMMAND_CONFIG, {
+            component,
+            data: config
+        });
+    }
+
+    protected updateComponent(id: string, title: string): void {
+        this.postViewMessage(COMMAND_COMPONENT, {
+            id,
+            title
+        });
+    }
+
+    protected drawRectangle(id: string, maxX: number, maxY: number, data: any) {
+        this.postViewMessage(COMMAND_DRAWRECT, {
+            id,
+            maxX,
+            maxY,
+            data
+        });
+    }		
 }
 
 

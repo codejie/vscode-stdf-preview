@@ -56,7 +56,7 @@
 				"title": "Parametric Map Preview",
 				"category": "STDF",
 				"icon": "$(symbol-keyword)"
-			},			
+			},
 			{
 				"command": "stdf.records.preview",
 				"title": "Records Preview",
@@ -75,7 +75,7 @@
 					"command": "stdf.records.preview",
 					"when": "resourceFilename =~ /.*\\.(std|stdf)/",
 					"group": "navigation@2"
-				},				
+				},
 				{
 					"submenu": "stdf.menu.map.preview",
 					"when": "resourceFilename =~ /.*\\.(std|stdf)/",
@@ -92,7 +92,7 @@
 					"command": "stdf.map.param.preview",
 					"when": "resourceFilename =~ /.*\\.(std|stdf)/",
 					"group": "navigation@5"
-				}				
+				}
 			]
 		},
 		"submenus": [
@@ -109,6 +109,18 @@
 					"type": "string",
 					"default": "FAR,ATR,MIR,MRR,PCR,WIR,WRR,WCR",
 					"markdownDescription": "Indicate STDF Records to be analysed.\n\nBe `NOT` recommended to set up multi-results records, such as PIR, PTR, FTP, PRR, etc., as it will comsume `a lot of memory` to parse them."
+				},
+				"STDF.Preview.recordsLimited": {
+					"type": "integer",
+					"enum": [
+						0,
+						1,
+						5,
+						10,
+						100
+					],
+					"default": 10,
+					"description": "Indicate limited number of each kind STDF Recrod to be parsed, 0 means unlimited."
 				},
 				"STDF.Preview.notShowMissingField": {
 					"type": "boolean",
@@ -155,6 +167,6 @@
 		"typescript": "^4.5.4"
 	},
 	"dependencies": {
-		"stdf-analyser": "^1.0.4"
+		"stdf-analyser": "^1.0.5"
 	}
 }

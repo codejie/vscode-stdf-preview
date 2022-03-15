@@ -2,17 +2,13 @@ import EventEmitter = require('events');
 import { stringify } from 'querystring';
 import * as vscode from 'vscode';
 
-// const COMMAND_DATA: string = 'cmd_data';
-const COMMAND_CONFIG: string = 'cmd_config';
-const COMMAND_COMPONENT: string = 'cmd_component';
-const COMMAND_DRAWRECT: string = 'cmd_draw_rect';
-
 export interface Configuration {
     recordsIncluded: string[] | undefined,
     notShowMissingField: boolean,
     showDescription: boolean,
     drawBackgroundGrid?: boolean,
-    useFieldOriginalValue: boolean
+    useFieldOriginalValue: boolean,
+    recordsLimited: number
 }
 
 export interface PreviewPanelOptions {
@@ -87,6 +83,7 @@ export abstract class PreviewPanel extends EventEmitter {
             showDescription: config.get('showFieldDescription') || false,
             drawBackgroundGrid: config.get('drawBackgroundGrid'),
             useFieldOriginalValue: config.get('useFieldOriginalValue') || false,
+            recordsLimited: config.get('recordsLimited') || 10
         };
     
         return ret;
@@ -149,40 +146,6 @@ export abstract class PreviewPanel extends EventEmitter {
         this.panel.webview?.postMessage({
             command: command,
             ...data
-        });
-    }
-
-    protected updateComponentStyle(component: string, style: any): void {
-
-    }
-
-    // protected updateComponentData(component: string, data: any): void {
-    //     this.postViewMessage(COMMAND_DATA, {
-    //         component,
-    //         data
-    //     });
-    // }
-
-    protected updateComponentConfig(component: string, config: any): void {
-        this.postViewMessage(COMMAND_CONFIG, {
-            component,
-            data: config
-        });
-    }
-
-    protected updateComponent(id: string, title: string): void {
-        this.postViewMessage(COMMAND_COMPONENT, {
-            id,
-            title
-        });
-    }
-
-    protected drawRectangle(id: string, maxX: number, maxY: number, data: any) {
-        this.postViewMessage(COMMAND_DRAWRECT, {
-            id,
-            maxX,
-            maxY,
-            data
         });
     }
 
