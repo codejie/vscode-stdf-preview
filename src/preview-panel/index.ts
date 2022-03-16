@@ -1,5 +1,6 @@
 import EventEmitter = require('events');
-import { stringify } from 'querystring';
+import * as fs from 'fs';
+import * as path from 'path';
 import * as vscode from 'vscode';
 
 export interface Configuration {
@@ -35,7 +36,7 @@ export abstract class PreviewPanel extends EventEmitter {
 
     protected running: boolean = true;
 
-    constructor(protected opts: PreviewPanelOptions) {
+    constructor(protected context: vscode.ExtensionContext, protected opts: PreviewPanelOptions) {
         super();
 
         this.configuration = this.fetchConfiguration(vscode.workspace.getConfiguration('STDF.Preview'));
@@ -127,7 +128,15 @@ export abstract class PreviewPanel extends EventEmitter {
         return this.panel.webview.asWebviewUri(vscode.Uri.joinPath(this.opts.uri, file));
     }
 
-    onArgs(args: any): void {
+    protected readResourceFile(file: string, items: { [key: string]: vscode.Uri}): string {
+        let ret = fs.readFileSync(path.join(this.context.asAbsolutePath(file))).toString('utf-8');
+        Object.keys(items).forEach(key => {
+            ret = ret.replace(`${key}`, `${items[key]}`);
+        });
+        return ret;
+    }
+
+    protected onArgs(args: any): void {
         // this.onFile(args.path);
         vscode.window.withProgress({
             location: vscode.ProgressLocation.Notification,

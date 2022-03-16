@@ -35,11 +35,6 @@ interface BinDataStruct {
 	flag: string
 }
 
-// const WaferInfoFields = ['WaferId', 'ProductId', 'LotId', 'subLotId',
-// 	'PartTotal', 'PartPass', 'JobName', 'start', 'finish'];
-
-// const TestNumberDataFields = ['Type', 'Number', 'Name', 'Count', 'Fail', 'Min', 'Max', 'Avg'];
-
 const COMMAND_CONFIG: string = 'cmd_config';
 const COMMAND_COMPONENT: string = 'cmd_component';
 const COMMAND_DRAWRECT: string = 'cmd_draw_rect';
@@ -52,9 +47,9 @@ export default class ProfileViewPanel extends PreviewPanel {
 	private testNumberData: TestNumberStruct[] = [];
 	private binData: BinDataStruct[] = [];
 
-    constructor(uri: vscode.Uri, column: vscode.ViewColumn, status: vscode.StatusBarItem) {
-        super({
-            uri: uri,
+    constructor(context: vscode.ExtensionContext, column: vscode.ViewColumn, status: vscode.StatusBarItem) {
+        super(context, {
+            uri: context.extensionUri,
             name: 'ProfileView',
             column: column || vscode.ViewColumn.One,
             type: 'profile.type',
@@ -64,7 +59,7 @@ export default class ProfileViewPanel extends PreviewPanel {
     }
 
     getHtml(): string {
-		const gridStyle = this.getResourceUri('grid/components.css');
+		// const gridStyle = this.getResourceUri('grid/components.css');
 		// const commonScript = this.getResourceUri('grid/common.js');
 		const scriptUri = this.getResourceUri('grid/view-panel.js');
 		const gridUri = this.getResourceUri('grid/gridjs.umd.js');
@@ -74,7 +69,6 @@ export default class ProfileViewPanel extends PreviewPanel {
 			<!DOCTYPE html>
 			<html lang="en">
 			<head>
-				<link href="${gridStyle}" rel="stylesheet"/>
 				<link href="${styleMainUri}" rel="stylesheet"/>
 				<script type="text/javascript" src=${gridUri}></script>
 				<script type="text/javascript" src="${scriptUri}"></script>				

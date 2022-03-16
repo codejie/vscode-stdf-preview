@@ -17,9 +17,9 @@ export default class RecordsViewPanel extends PreviewPanel {
 		[key: string]: number
 	} = {};
 
-    constructor(uri: vscode.Uri, column: vscode.ViewColumn, status: vscode.StatusBarItem) {
-        super({
-            uri: uri,
+    constructor(context: vscode.ExtensionContext, column: vscode.ViewColumn, status: vscode.StatusBarItem) {
+        super(context, {
+            uri: context.extensionUri,
             name: 'Full Preview',
             column: column || vscode.ViewColumn.One,
             type: 'full.type',
@@ -29,7 +29,7 @@ export default class RecordsViewPanel extends PreviewPanel {
     }
 
     getHtml(): string {
-		const gridStyle = this.getResourceUri('grid/components.css');
+		// const gridStyle = this.getResourceUri('grid/components.css');
 		// const commonScript = this.getResourceUri('grid/common.js');
 		const scriptUri = this.getResourceUri('grid/view-panel.js');
 		const gridUri = this.getResourceUri('grid/gridjs.umd.js');
@@ -39,7 +39,6 @@ export default class RecordsViewPanel extends PreviewPanel {
 			<!DOCTYPE html>
 			<html lang="en">
 			<head>
-				<link href="${gridStyle}" rel="stylesheet"/>
 				<link href="${styleMainUri}" rel="stylesheet"/>
 				<script type="text/javascript" src=${gridUri}></script>
 				<script type="text/javascript" src="${scriptUri}"></script>				

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link href="../param-map-panel.css" rel="stylesheet"/>
+    <link href="../mermaid.min.css" rel="stylesheet" />			
+    <script src="../gridjs.umd.js"></script>
+    <script src="../chart.min.js"></script>
+</head>
+<body>
+    <div id="fixheader">
+        <div id="waferinfo-container"></div>
+        <div id="numberinfo-container">
+            <div id="numberselect-container">
+                <select id="number-select">
+                    <option value="1">TestNumber - 1</option>
+                </select>                
+            </div>
+            <div id="numbergrid-container">NUMBER-GRID</div>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="right">
+            <canvas id="canvas"></canvas>
+        </div>
+        <div class="left" id="table_wrapper"></div>
+    </div>
+    <div>
+        aaa
+    </div>
+    <div>
+        <canvas id="chartjs" height="100px"></canvas>
+    </div>
+
+    <script src="../param-map-view-panel.js"></script>
+</body>
+</html>

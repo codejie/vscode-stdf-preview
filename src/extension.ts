@@ -2,7 +2,6 @@
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
 import { Configuration } from './preview-panel';
-import DetailViewPanel from './preview-panel/detail-panel';
 import RecordsViewPanel from './preview-panel/records-panel';
 import ProfileViewPanel from './preview-panel/profile-panel';
 import SBinMapViewPanel from './preview-panel/sbin-map-panel';
@@ -28,28 +27,28 @@ export function activate(context: vscode.ExtensionContext) {
 	// 	console.log(context);
 	// });
 	let profile = vscode.commands.registerCommand('stdf.profile.preview', async (args) => {
-		const profileViewPanel: ProfileViewPanel = new ProfileViewPanel(context.extensionUri, vscode.ViewColumn.One, status);
+		const profileViewPanel: ProfileViewPanel = new ProfileViewPanel(context, vscode.ViewColumn.One, status);
 		profileViewPanel.emit('args', args);
 		return profileViewPanel.viewPanel;
 	});
 	context.subscriptions.push(profile);
 
 	let map = vscode.commands.registerCommand('stdf.map.sbin.preview', (args) => {
-		const mapViewPanel = new SBinMapViewPanel(context.extensionUri, vscode.ViewColumn.One, status);
+		const mapViewPanel = new SBinMapViewPanel(context, vscode.ViewColumn.One, status);
 		mapViewPanel.emit('args', args);
 		return mapViewPanel.viewPanel;
 	});
 	context.subscriptions.push(map);	
 
 	let param = vscode.commands.registerCommand('stdf.map.param.preview', (args) => {
-		const panel = new ParamMapViewPanel(context.extensionUri, vscode.ViewColumn.One, status);
+		const panel = new ParamMapViewPanel(context, vscode.ViewColumn.One, status);
 		panel.emit('args', args);
 		return panel.viewPanel;
 	});
 	context.subscriptions.push(param);	
 
 	let records = vscode.commands.registerCommand('stdf.records.preview', (args) => {
-		const recordsViewPanel = new RecordsViewPanel(context.extensionUri, vscode.ViewColumn.One, status);
+		const recordsViewPanel = new RecordsViewPanel(context, vscode.ViewColumn.One, status);
 		recordsViewPanel.emit('args', args);
 		return recordsViewPanel.viewPanel;
 	});

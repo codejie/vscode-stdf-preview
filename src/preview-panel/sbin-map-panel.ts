@@ -65,9 +65,9 @@ export default class SBinMapViewPanel extends PreviewPanel {
 	// private passColorInc: number = 0;
 	// private failColorInc: number = 0;
 
-    constructor(uri: vscode.Uri, column: vscode.ViewColumn, status: vscode.StatusBarItem) {
-        super({
-            uri: uri,
+    constructor(context: vscode.ExtensionContext, column: vscode.ViewColumn, status: vscode.StatusBarItem) {
+        super(context, {
+            uri: context.extensionUri,
             name: 'SBin Map Preview',
             column: column || vscode.ViewColumn.One,
             type: 'sbin.map.type',
@@ -77,8 +77,8 @@ export default class SBinMapViewPanel extends PreviewPanel {
     }
 
     getHtml(): string {
-		const gridStyle = this.getResourceUri('grid/sbin-map-view-panel.css');
-		const scriptUri = this.getResourceUri('grid/sbin-map-view-panel.js');
+		const gridStyle = this.getResourceUri('grid/sbin-map-panel.css');
+		const scriptUri = this.getResourceUri('grid/sbin-map-panel.js');
 		const gridUri = this.getResourceUri('grid/gridjs.umd.js');
 		const styleMainUri = this.getResourceUri('grid/mermaid.min.css');
 

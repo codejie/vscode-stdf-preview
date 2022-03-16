@@ -87,9 +87,9 @@ export default class ParamMapViewPanel extends PreviewPanel {
 		maxY: Number.MIN_SAFE_INTEGER
 	};
 
-    constructor(uri: vscode.Uri, column: vscode.ViewColumn, status: vscode.StatusBarItem) {
-        super({
-            uri: uri,
+    constructor(context: vscode.ExtensionContext, column: vscode.ViewColumn, status: vscode.StatusBarItem) {
+        super(context, {
+            uri: context.extensionUri,
             name: 'Parametric Map Preview',
             column: column || vscode.ViewColumn.One,
             type: 'param.map.type',
@@ -99,38 +99,22 @@ export default class ParamMapViewPanel extends PreviewPanel {
     }
 
     getHtml(): string {
-		const gridStyle = this.getResourceUri('grid/components.css');
-		const scriptUri = this.getResourceUri('grid/sbin-map-view-panel.js');
-		const gridUri = this.getResourceUri('grid/gridjs.umd.js');
-		const styleMainUri = this.getResourceUri('grid/mermaid.min.css');
+		const gridScript = this.getResourceUri('grid/gridjs.umd.js');
+		const gridStyle = this.getResourceUri('grid/mermaid.min.css');
+		const chartScript = this.getResourceUri('grid/chart.min.js');
 
-		return `
-			<!DOCTYPE html>
-			<html lang="en">
-			<head>
-				<link href="${gridStyle}" rel="stylesheet"/>
-				<link href="${styleMainUri}" rel="stylesheet"/>
-				<script type="text/javascript" src=${gridUri}></script>
-				<script type="text/javascript" src="${scriptUri}"></script>				
-			</head>
-			<body>
-                <div class="container">
-                    <div class="sub-container">
-                        <label for="number-select">选择测试项</label>
-                    </div>
-                    <div class="sub-container">
-                        <select name="testNumber" id="number-select">
-                            <option value="1">TestNumber - 1</option>
-                        </select>
-                    </div>
-                </div>
-				<div class="container">
-					<canvas id="canvas" width="200px" height="500px"/>
-				</div>
-				<div id="container" width="100%"/>
-			</body>
-			</html>
-		`;
+		const scriptStyle = this.getResourceUri('grid/param-map-panel.css');
+		const script = this.getResourceUri('grid/param-map-panel.js');
+
+		const html = this.readResourceFile('grid/param-map-panel.html', {
+			'${gridStyle}': gridStyle,
+			'${gridScript}': gridScript,
+			'${chartScript}': chartScript,
+			'${scriptStyle}': scriptStyle,
+			'${script}': script,
+		});
+
+		return html;
     }
 
     async onFile(process: vscode.Progress<ProcessArgs>, filename: string): Promise<void> {
@@ -164,6 +148,9 @@ export default class ParamMapViewPanel extends PreviewPanel {
 
 		input.close();		
 
+		// this.postUpdateTestItems(this.numberData);
+		this.postTestNumberData(Object.keys(this.numberData)[0]);
+
 		process.report({
 			increment: 100,
 			message: 'process end.'
@@ -171,7 +158,6 @@ export default class ParamMapViewPanel extends PreviewPanel {
 
 		return Promise.resolve();
     }
-    
 
 	private onRecord(process: vscode.Progress<ProcessArgs>, record: Record.RecordBase): Promise<void> {
 
@@ -226,10 +212,9 @@ export default class ParamMapViewPanel extends PreviewPanel {
 		this.waferInfo.total = record.fields[3].value;
 		this.waferInfo.pass = record.fields[6].value;
 
-		// this.makeWaferInfoComponent();
-		// this.makeWaferInfoData();
+		this.postWaferInfo();
 	}
-    
+
 	private onTSR(record: Record.RecordBase): void {
         if (record.fields[2].value === 'P') {
             this.numberItems[record.fields[3].value] = {
@@ -266,6 +251,8 @@ export default class ParamMapViewPanel extends PreviewPanel {
 						max: ptr.result,
 						data: [[prr.x, prr.y, prr.hbin, prr.sbin, ptr.result]]
 					};
+
+					this.postUpdateTestItem(`${ptr.number} - ${ptr.text}`, index);
 				}
 
 				if (this.dieInfo.minX > prr.x) this.dieInfo.minX = prr.x;
@@ -309,4 +296,65 @@ export default class ParamMapViewPanel extends PreviewPanel {
 		});
     }
 
+	private postWaferInfo() {
+
+		const data: any[] = [];
+		data.push(['WaferId', this.waferInfo.waferId, 'LotId', this.waferInfo.lotId, 'JobName', this.waferInfo.jobName]);
+		data.push(['ProductId', this.waferInfo.partType, 
+			'PassRate', `${((this.waferInfo.pass! / this.waferInfo.total!) * 100).toFixed(2)}% (${this.waferInfo.pass}/${this.waferInfo.total})`,
+			'Start', this.waferInfo.start]);
+
+		this.postViewMessage('update_grid', {
+			container: 'waferinfo-container',
+			grid: {
+				columns: [
+					{
+						name: 'Item',
+						width: '10%'
+					},
+					{
+						name: 'Value',
+						width: '20%'
+					},
+					{
+						name: 'Item',
+						width: '10%'
+					},
+					{
+						name: 'Value',
+						width: '20%'
+					},
+					{
+						name: 'Item',
+						width: '10%'
+					},
+					{
+						name: 'Value',
+						width: '30%'
+					}					
+				],
+				style: {
+					th: {
+						display: 'none'
+					}
+				},
+				data: data
+			}
+		});
+	}
+    
+	postUpdateTestItem(item: string, index: string) {
+		this.postViewMessage('update_select_option', {
+			container: 'number-select',
+			option: {
+				text: item,
+				index: index
+			}
+		});
+	}
+
+	private postTestNumberData(arg0: string) {
+
+		throw new Error('Method not implemented.');
+	}	
 }

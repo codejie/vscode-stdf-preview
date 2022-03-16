@@ -1,3 +1,23 @@
+#fixheader {
+    padding: 10px 16px;
+    background: #555;
+    color: #f1f1f1;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    height: auto;
+}
+
+#waferinfo-container {
+    width: 100%;
+}
+
+#numberinfo-container {
+    display: grid;
+    grid-template-columns: 50% 50%;
+}
+
+
 .container {
     height: auto;
     overflow: hidden;
@@ -29,14 +49,7 @@
     border: 1px solid black;
 }
 
-.fixheader {
-    padding: 10px 16px;
-    background: #555;
-    color: #f1f1f1;
-    /* position: fixed; */
-    top: 0;
-    width: 100%
-}
+
 
 /* .table_wrapper {
     display: grid;    
