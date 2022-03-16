@@ -67,7 +67,7 @@ type DieInfoStruct = {
 	maxX: number,
 	minY: number,
 	maxY: number
-}
+};
 
 
 export default class ParamMapViewPanel extends PreviewPanel {
@@ -149,7 +149,7 @@ export default class ParamMapViewPanel extends PreviewPanel {
 		input.close();		
 
 		// this.postUpdateTestItems(this.numberData);
-		this.postTestNumberData(Object.keys(this.numberData)[0]);
+		this.postTestNumberData((<any>Object.keys(this.numberData)[0]).number);
 
 		process.report({
 			increment: 100,
@@ -303,44 +303,61 @@ export default class ParamMapViewPanel extends PreviewPanel {
 		data.push(['ProductId', this.waferInfo.partType, 
 			'PassRate', `${((this.waferInfo.pass! / this.waferInfo.total!) * 100).toFixed(2)}% (${this.waferInfo.pass}/${this.waferInfo.total})`,
 			'Start', this.waferInfo.start]);
-
+			
 		this.postViewMessage('update_grid', {
 			container: 'waferinfo-container',
 			grid: {
-				columns: [
-					{
-						name: 'Item',
-						width: '10%'
-					},
-					{
-						name: 'Value',
-						width: '20%'
-					},
-					{
-						name: 'Item',
-						width: '10%'
-					},
-					{
-						name: 'Value',
-						width: '20%'
-					},
-					{
-						name: 'Item',
-						width: '10%'
-					},
-					{
-						name: 'Value',
-						width: '30%'
-					}					
-				],
-				style: {
-					th: {
-						display: 'none'
-					}
+				opts: {
+					rows: 2,
+					columns: 6,
+					widths: ['10%', '20%', '10%', '20%', '10%', '30%']
 				},
 				data: data
 			}
 		});
+
+		// this.postViewMessage('update_grid', {
+		// 	container: 'waferinfo-container',
+		// 	grid: {
+		// 		columns: [
+		// 			{
+		// 				name: 'Item',
+		// 				width: '10%'
+		// 			},
+		// 			{
+		// 				name: 'Value',
+		// 				width: '20%'
+		// 			},
+		// 			{
+		// 				name: 'Item',
+		// 				width: '10%'
+		// 			},
+		// 			{
+		// 				name: 'Value',
+		// 				width: '20%'
+		// 			},
+		// 			{
+		// 				name: 'Item',
+		// 				width: '10%'
+		// 			},
+		// 			{
+		// 				name: 'Value',
+		// 				width: '30%'
+		// 			}					
+		// 		],
+		// 		style: {
+		// 			th: {
+		// 				display: 'none'
+		// 			},
+		// 			td: {
+		// 				width: 'fit-content',
+		// 				height: 'fit-content'
+		// 			},
+		// 			width: 'auto'
+		// 		},
+		// 		data: data
+		// 	}
+		// });
 	}
     
 	postUpdateTestItem(item: string, index: string) {
@@ -353,8 +370,6 @@ export default class ParamMapViewPanel extends PreviewPanel {
 		});
 	}
 
-	private postTestNumberData(arg0: string) {
-
-		throw new Error('Method not implemented.');
+	private postTestNumberData(number: number) {
 	}	
 }
