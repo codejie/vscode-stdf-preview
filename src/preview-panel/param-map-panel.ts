@@ -334,6 +334,13 @@ export default class ParamMapViewPanel extends PreviewPanel {
 		});
 	}
 
+	private onTestNumberChanged(index: string) {
+		// console.log(data.value);
+		this.postTestNumberItemInfo(this.numberData[index].number);
+		this.postTestNumberDataInfo(index);
+		this.postTestNumberDataMap(index);
+	}
+
 	private postTestNumberItemInfo(number: number) {
 		const item = this.numberItems[number];
 		const data = [[`${item.number} (${item.seqName})`, 
@@ -361,10 +368,10 @@ export default class ParamMapViewPanel extends PreviewPanel {
 			['Number', `${item.number}`],
 			['Text', item.text],
 			['Unit', item.unit],
-			['Low', item.low.toFixed(6)],
-			['High', item.high.toFixed(6)],
-			['Min', item.min.toFixed(6)],
-			['Max', item.max.toFixed(6)]
+			['Low', `${item.low}`],
+			['High', `${item.high}`],
+			['Min', `${item.min}`],
+			['Max', `${item.max}`]
 		];
 
 		this.postViewMessage('update_grid', {
@@ -380,9 +387,32 @@ export default class ParamMapViewPanel extends PreviewPanel {
 		});
 	}
 
-	private onTestNumberChanged(index: string) {
-		// console.log(data.value);
-		this.postTestNumberItemInfo(this.numberData[index].number);
-		this.postTestNumberDataInfo(index);
-	}
+	private postTestNumberDataMap(index: string) {
+		const item = this.numberData[index];
+		
+		const elements: any[] = [];
+		item.data.forEach(i => {
+			elements.push([i[0], i[1], 1]);
+		});
+
+		this.postViewMessage('update_map', {
+			container: 'number-canvas',
+			map: {
+				opts: {
+					grid: true,
+					maxX: this.dieInfo.maxX,
+					maxY: this.dieInfo.maxY
+				},
+				data: {
+					elements: elements,
+					colors: [
+						{
+							index: 1,
+							color: '#fff'
+						}
+					]
+				}
+			}
+		});
+	}	
 }
