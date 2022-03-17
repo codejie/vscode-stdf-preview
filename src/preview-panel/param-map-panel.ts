@@ -96,6 +96,14 @@ export default class ParamMapViewPanel extends PreviewPanel {
             resourcePath: ['grid'],
 			status: status
         });
+
+		this.panel.webview.onDidReceiveMessage(msg => {
+			switch(msg.command) {
+				case 'number_changed': {
+					this.onTestNumberChanged(msg.data.value);
+				}
+			}
+		});
     }
 
     getHtml(): string {
@@ -149,7 +157,7 @@ export default class ParamMapViewPanel extends PreviewPanel {
 		input.close();		
 
 		// this.postUpdateTestItems(this.numberData);
-		this.postTestNumberData((<any>Object.keys(this.numberData)[0]).number);
+		this.onTestNumberChanged(Object.keys(this.numberData)[0]);
 
 		process.report({
 			increment: 100,
@@ -297,7 +305,6 @@ export default class ParamMapViewPanel extends PreviewPanel {
     }
 
 	private postWaferInfo() {
-
 		const data: any[] = [];
 		data.push(['WaferId', this.waferInfo.waferId, 'LotId', this.waferInfo.lotId, 'JobName', this.waferInfo.jobName]);
 		data.push(['ProductId', this.waferInfo.partType, 
@@ -315,49 +322,6 @@ export default class ParamMapViewPanel extends PreviewPanel {
 				data: data
 			}
 		});
-
-		// this.postViewMessage('update_grid', {
-		// 	container: 'waferinfo-container',
-		// 	grid: {
-		// 		columns: [
-		// 			{
-		// 				name: 'Item',
-		// 				width: '10%'
-		// 			},
-		// 			{
-		// 				name: 'Value',
-		// 				width: '20%'
-		// 			},
-		// 			{
-		// 				name: 'Item',
-		// 				width: '10%'
-		// 			},
-		// 			{
-		// 				name: 'Value',
-		// 				width: '20%'
-		// 			},
-		// 			{
-		// 				name: 'Item',
-		// 				width: '10%'
-		// 			},
-		// 			{
-		// 				name: 'Value',
-		// 				width: '30%'
-		// 			}					
-		// 		],
-		// 		style: {
-		// 			th: {
-		// 				display: 'none'
-		// 			},
-		// 			td: {
-		// 				width: 'fit-content',
-		// 				height: 'fit-content'
-		// 			},
-		// 			width: 'auto'
-		// 		},
-		// 		data: data
-		// 	}
-		// });
 	}
     
 	postUpdateTestItem(item: string, index: string) {
@@ -370,6 +334,55 @@ export default class ParamMapViewPanel extends PreviewPanel {
 		});
 	}
 
-	private postTestNumberData(number: number) {
-	}	
+	private postTestNumberItemInfo(number: number) {
+		const item = this.numberItems[number];
+		const data = [[`${item.number} (${item.seqName})`, 
+						`Pass: ${(((item.count - item.fail) / item.count) * 100).toFixed(2)}%(${item.count - item.fail}/${item.count})`,
+						`avg: ${(item.sum / (item.count - item.fail)).toFixed(2)}`,
+						`min: ${item.min.toFixed(3)}`,
+						`max: ${item.max.toFixed(3)}`]];
+			
+		this.postViewMessage('update_grid', {
+			container: 'numbergrid-container',
+			grid: {
+				opts: {
+					rows: 1,
+					columns: 5,
+					widths: ['auto', 'auto', 'auto', 'auto', 'auto']
+				},
+				data: data
+			}
+		});
+	}
+
+	private postTestNumberDataInfo(index: string) {
+		const item = this.numberData[index];
+		const data = [
+			['Number', `${item.number}`],
+			['Text', item.text],
+			['Unit', item.unit],
+			['Low', item.low.toFixed(6)],
+			['High', item.high.toFixed(6)],
+			['Min', item.min.toFixed(6)],
+			['Max', item.max.toFixed(6)]
+		];
+
+		this.postViewMessage('update_grid', {
+			container: 'numbertable-container',
+			grid: {
+				opts: {
+					rows: 7,
+					columns: 2,
+					widths: ['auto', 'auto']
+				},
+				data: data
+			}
+		});
+	}
+
+	private onTestNumberChanged(index: string) {
+		// console.log(data.value);
+		this.postTestNumberItemInfo(this.numberData[index].number);
+		this.postTestNumberDataInfo(index);
+	}
 }

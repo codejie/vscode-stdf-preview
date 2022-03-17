@@ -12,11 +12,15 @@
         <div id="waferinfo-container"></div>
         <div id="numberinfo-container">
             <div id="numberselect-container">
-                <select name="testNumber" id="number-select">
+                <select id="number-select" style="height: 30px" onchange="onNumberChange(this.value)">
                 </select>                
             </div>
-            <div id="numbergrid-container">lllddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd</div>
+            <div id="numbergrid-container"></div>
         </div>
+    </div>
+    <div id="map-container">
+        <div id="numbertable-container"></div>
+        <canvas id="number-canvas"></canvas>
     </div>
 
     <script src="${script}"></script>
