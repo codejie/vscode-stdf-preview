@@ -17,30 +17,36 @@ interface WaferInfoStruct {
 	finish?: Date	
 }
 
+type TestNumberItem = {
+	number: number;
+	testName: string;
+	seqName: string;
+	count: number;
+	fail: number;
+	min: number;
+	max: number;
+	sum: number;
+};
+
 interface TestNumberItemStruct {
-    [key: number]: { // test
-        number: number,
-        testName: string,
-        seqName: string,
-        count: number,
-        fail: number,
-        min: number,
-        max: number,
-        sum: number
-    }
+    [key: number]: TestNumberItem
 }
 
+type TestNumberData = {
+	number: number;
+	text: string;
+	unit: string;
+	low: number;
+	high: number;
+	min: number;
+	max: number;
+	pass: number;
+	sum: number;
+	data: number[][]; // x, y, hbin, sbin, result
+};
+
 interface TestNumberDataStruct {
-    [key: string]: { // test + text
-        number: number,
-        text: string,
-        unit: string,
-        low: number,
-        high: number,
-        min: number,
-        max: number,
-        data: number[][] // x, y, hbin, sbin, result
-    }
+    [key: string]: TestNumberData
 }
 
 interface PTRDataStruct {
@@ -70,7 +76,7 @@ type DieInfoStruct = {
 	maxY: number
 };
 
-type NumberMapInfoStruct = {
+type TestNumberOptions = {
 	number: number,
 	text: string,
 	min: number,
@@ -78,9 +84,14 @@ type NumberMapInfoStruct = {
 	avg: number,
 	low: number,
 	high: number,
-	resultGap: number,
-	colors: []
-}
+	gapTotal: number,
+	gapColors: {
+		[key: number]: { // -1: NaN, -2: less low; -3: greater high; normal start from 0
+			name: string,
+			color: string
+		}
+	}
+};
 
 export default class ParamMapViewPanel extends PreviewPanel {
     private processIncrement: number = 0;
@@ -99,17 +110,17 @@ export default class ParamMapViewPanel extends PreviewPanel {
 		maxY: Number.MIN_SAFE_INTEGER
 	};
 
-	private numberMapInfo: NumberMapInfoStruct = {
-		number: 0,
-		text: '',
-		min: 0,
-		max: 0,
-		avg: 0,
-		low: 0,
-		high: 0,
-		resultGap: 0,
-		colors: []		
-	};
+	// private numberInfo: TestNumberInfoStruct = {
+	// 	number: 0,
+	// 	text: '',
+	// 	min: 0,
+	// 	max: 0,
+	// 	avg: 0,
+	// 	low: 0,
+	// 	high: 0,
+	// 	gap: 0,
+	// 	color: []		
+	// };
 
 
     constructor(context: vscode.ExtensionContext, column: vscode.ViewColumn, status: vscode.StatusBarItem) {
@@ -270,8 +281,13 @@ export default class ParamMapViewPanel extends PreviewPanel {
 				const index = this.makeNumberIndex(ptr.number, ptr.text);
 				const data = this.numberData[index];
 				if (data) {
-					if (data.min > ptr.result) data.min = ptr.result;
-					if (data.max < ptr.result) data.max = ptr.result;
+					if (data.min > ptr.result) {data.min = ptr.result;}
+					if (data.max < ptr.result) {data.max = ptr.result;}
+
+					if (ptr.result !== Number.NaN) {
+						++ data.pass;
+						data.sum += ptr.result;
+					}
 					data.data.push([prr.x, prr.y, prr.hbin, prr.sbin, ptr.result]);
 				} else {
 					this.numberData[index] = {
@@ -282,16 +298,18 @@ export default class ParamMapViewPanel extends PreviewPanel {
 						high: ptr.high,
 						min: ptr.result,
 						max: ptr.result,
+						pass: 1,
+						sum: (ptr.result !== Number.NaN ? ptr.result : 0),
 						data: [[prr.x, prr.y, prr.hbin, prr.sbin, ptr.result]]
 					};
 
 					this.postUpdateTestItem(`${ptr.number} - ${ptr.text}`, index);
 				}
 
-				if (this.dieInfo.minX > prr.x) this.dieInfo.minX = prr.x;
-				if (this.dieInfo.maxX < prr.x) this.dieInfo.maxX = prr.x;
-				if (this.dieInfo.minY > prr.y) this.dieInfo.minY = prr.y;
-				if (this.dieInfo.maxY < prr.y) this.dieInfo.maxY = prr.y;
+				if (this.dieInfo.minX > prr.x) {this.dieInfo.minX = prr.x;}
+				if (this.dieInfo.maxX < prr.x) {this.dieInfo.maxX = prr.x;}
+				if (this.dieInfo.minY > prr.y) {this.dieInfo.minY = prr.y;}
+				if (this.dieInfo.maxY < prr.y) {this.dieInfo.maxY = prr.y;}
 			} else {
 				console.log(`CANNOT find x/y - ${ptr.head}-${ptr.site}`);
 			}
@@ -307,15 +325,15 @@ export default class ParamMapViewPanel extends PreviewPanel {
     
 	private onPTR(record: Record.RecordBase): void {
 
-        const optFlag = record.fields[8].value
-        const valid = (record.fields[3].value === 0) ? 1 : 0
-        const result = makeResult(record.fields[5].value, (valid === 1), ((optFlag & 0x0001) === 0x0000), record.fields[9].value)
+        const optFlag = record.fields[8].value;
+        const valid = (record.fields[3].value === 0) ? 1 : 0;
+        const result = makeResult(record.fields[5].value, (valid === 1), ((optFlag & 0x0001) === 0x0000), record.fields[9].value);
 
-		const lowValid = (optFlag & 0x0050) === 0x0000
-		const highValid = (optFlag & 0x00A0) === 0x0000
+		const lowValid = (optFlag & 0x0050) === 0x0000;
+		const highValid = (optFlag & 0x00A0) === 0x0000;
 
-		const lowLimit = makeResult(record.fields[12].value, lowValid, lowValid, record.fields[10].value)
-		const highLimit = makeResult(record.fields[13].value, highValid, highValid, record.fields[11].value)
+		const lowLimit = makeResult(record.fields[12].value, lowValid, lowValid, record.fields[10].value);
+		const highLimit = makeResult(record.fields[13].value, highValid, highValid, record.fields[11].value);
 
 		this.ptrData.push({
 			head: record.fields[1].value,
@@ -323,9 +341,9 @@ export default class ParamMapViewPanel extends PreviewPanel {
 			number: record.fields[0].value,
 			text: record.fields[6].value,
 			unit: record.fields[14].value,
-			low: record.fields[12].value,
-			high: record.fields[13].value,
-			result: record.fields[5].value
+			low: lowLimit,
+			high: highLimit,
+			result: result
 		});
     } 
     
@@ -372,13 +390,25 @@ export default class ParamMapViewPanel extends PreviewPanel {
 
 	private onTestNumberChanged(index: string) {
 		// console.log(data.value);
-		this.postTestNumberItemInfo(this.numberData[index].number);
-		this.postTestNumberDataInfo(index);
-		this.postTestNumberDataMap(index);
+
+		const data = this.numberData[index];
+		const item = this.numberItems[data.number];
+
+		const opts: TestNumberOptions = this.makeTestNumberOptions(item, data);
+
+		this.postTestNumberItemInfo(item);
+		this.postTestNumberDataInfo(data);
+
+		
+		this.postTestNumberDataMap(data);
+	}
+	
+	makeTestNumberOptions(item: TestNumberItem, data: TestNumberData): TestNumberOptions {
+		throw new Error('Method not implemented.');
 	}
 
-	private postTestNumberItemInfo(number: number) {
-		const item = this.numberItems[number];
+	private postTestNumberItemInfo(item: TestNumberItem) {
+		// const item = this.numberItems[number];
 		const data = [[`${item.number} (${item.seqName})`, 
 						`Pass: ${(((item.count - item.fail) / item.count) * 100).toFixed(2)}%(${item.count - item.fail}/${item.count})`,
 						`avg: ${(item.sum / (item.count - item.fail)).toFixed(2)}`,
@@ -398,8 +428,8 @@ export default class ParamMapViewPanel extends PreviewPanel {
 		});
 	}
 
-	private postTestNumberDataInfo(index: string) {
-		const item = this.numberData[index];
+	private postTestNumberDataInfo(item: TestNumberData) {
+		// const item = this.numberData[index];
 		const data = [
 			['Number', `${item.number}`],
 			['Text', item.text],
@@ -422,14 +452,16 @@ export default class ParamMapViewPanel extends PreviewPanel {
 			}
 		});
 
-		this.numberMapInfo.number = item.number;
-		this.numberMapInfo.text = item.text;
-		this.numberMapInfo.
+		// this.numberMapInfo.number = item.number;
+		// this.numberMapInfo.text = item.text;
+		// this.numberMapInfo.avg = item.sum / item.pass;
+		// this.numberMapInfo.
 	}
 
-	private postTestNumberDataMap(index: string) {
-		const item = this.numberData[index];
+	private postTestNumberDataMap(item: TestNumberData) {
+		// const item = this.numberData[index];
 		
+
 		const elements: any[] = [];
 		item.data.forEach(i => {
 			elements.push([i[0], i[1], 1]);
