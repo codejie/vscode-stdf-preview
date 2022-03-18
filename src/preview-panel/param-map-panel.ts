@@ -3,6 +3,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { PreviewPanel, ProcessArgs } from '.';
 import { STDFAnalyser, Record } from 'stdf-analyser';
+import { makeResult } from './helper';
 
 interface WaferInfoStruct {
 	waferId?: string,
@@ -69,6 +70,17 @@ type DieInfoStruct = {
 	maxY: number
 };
 
+type NumberMapInfoStruct = {
+	number: number,
+	text: string,
+	min: number,
+	max: number,
+	avg: number,
+	low: number,
+	high: number,
+	resultGap: number,
+	colors: []
+}
 
 export default class ParamMapViewPanel extends PreviewPanel {
     private processIncrement: number = 0;
@@ -86,6 +98,19 @@ export default class ParamMapViewPanel extends PreviewPanel {
 		minY: Number.MAX_SAFE_INTEGER,
 		maxY: Number.MIN_SAFE_INTEGER
 	};
+
+	private numberMapInfo: NumberMapInfoStruct = {
+		number: 0,
+		text: '',
+		min: 0,
+		max: 0,
+		avg: 0,
+		low: 0,
+		high: 0,
+		resultGap: 0,
+		colors: []		
+	};
+
 
     constructor(context: vscode.ExtensionContext, column: vscode.ViewColumn, status: vscode.StatusBarItem) {
         super(context, {
@@ -281,6 +306,17 @@ export default class ParamMapViewPanel extends PreviewPanel {
 	}
     
 	private onPTR(record: Record.RecordBase): void {
+
+        const optFlag = record.fields[8].value
+        const valid = (record.fields[3].value === 0) ? 1 : 0
+        const result = makeResult(record.fields[5].value, (valid === 1), ((optFlag & 0x0001) === 0x0000), record.fields[9].value)
+
+		const lowValid = (optFlag & 0x0050) === 0x0000
+		const highValid = (optFlag & 0x00A0) === 0x0000
+
+		const lowLimit = makeResult(record.fields[12].value, lowValid, lowValid, record.fields[10].value)
+		const highLimit = makeResult(record.fields[13].value, highValid, highValid, record.fields[11].value)
+
 		this.ptrData.push({
 			head: record.fields[1].value,
 			site: record.fields[2].value,
@@ -385,6 +421,10 @@ export default class ParamMapViewPanel extends PreviewPanel {
 				data: data
 			}
 		});
+
+		this.numberMapInfo.number = item.number;
+		this.numberMapInfo.text = item.text;
+		this.numberMapInfo.
 	}
 
 	private postTestNumberDataMap(index: string) {
@@ -414,5 +454,6 @@ export default class ParamMapViewPanel extends PreviewPanel {
 				}
 			}
 		});
-	}	
+	}
+	
 }
