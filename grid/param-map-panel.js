@@ -14,6 +14,9 @@ window.addEventListener('message', (event) => {
         onUpdateNumberMap(event.data.container, event.data.map);
         break;
       }
+      case 'update_map_chart': {
+        onUpdateNumberMapChart(event.data.container, event.data.chart);
+      }
   }
 });
 
@@ -33,38 +36,67 @@ function onUpdateSelectOption(container, data) {
 }
 
 function onUpdateNumberMap(container, data) {
-  drawMap(container, data.opts, data.data);
+  drawMap(container, data.opts, data.data); 
+}
 
-  // drawMap(container, {
-  //   grid: true,
-  //   maxX: 4,
-  //   maxY: 4
-  // }, {
-  //   elements: [
-  //     [0, 1, 1],
-  //     [0, 2, 1],
-  //     [1, 1, 2],
-  //     [2, 2, 3]
-  //   ],
-  //   colors: [
-  //     {
-  //       index: 1,
-  //       color: 555
-  //     },
-  //     {
-  //       index: 2,
-  //       color: 999
-  //     },
-  //     {
-  //       index: 3,
-  //       color: 000
-  //     }        
-  //   ]
-  // })  
+function onUpdateNumberMapChart(container, data) {
+  const l = [];
+  const d = [];
+  const c = [];
+
+  data.opts.orders.forEach(order => {
+    l.push(data.data.colors[order].name);
+    d.push(data.data.data[order] || 0);
+    c.push(data.data.colors[order].color);
+  });        
+
+  const lines = {};
+  let no = 0;
+  data.data.lines.forEach(line => {
+    lines[`line${++ no}`] = {
+      type: 'line',
+      xMin: line.xPos,
+      xMax: line.xPos,
+      borderDash: [2, 5],
+      borderWidth: 1,
+      borderColor: line.color,
+      label: {
+        content: line.name,
+        color: line.color,
+        enabled: true,
+        backgroundColor: 'transparent',
+        position: 'start'
+      }
+    }
+  });
+
+  const chartData = {
+    data: {
+      labels: l,//data.opts.labels,
+      datasets: [
+        {
+          data: d,
+          backgroundColor: c
+        }
+      ]
+    },
+    options: {
+      plugins: {
+        legend: {
+          display: false,
+        },
+        annotation: {
+          annotations: lines
+        }
+      }
+    }
+  };
+
+  drawNumberChart(container, {}, chartData);  
 }
 
 function onNumberChange(value) {
-  console.log(value);
+  // console.log(value);
 
   vscode.postMessage({
     command: 'number_changed',
@@ -105,7 +137,6 @@ function drawTable(id, opts, data) {
   }
 }
 
-
 /*
 opts: {
   grid: boolean,
@@ -134,12 +165,6 @@ function drawMap(id, opts, data) {
 
   const gap = width / columns;
 
-  console.log('width = ' + width);
-  console.log('canvas width = ' + canvas.width);
-  console.log('canvas height = ' + canvas.height);
-  console.log('columns = ' + columns);
-  console.log('gap = ' + gap);
-
   // grids
   if (opts.grid) {
       ctx.strokeStyle = 'grey';
@@ -162,9 +187,6 @@ function drawMap(id, opts, data) {
   // ctx.beginPath();
   data.elements.forEach(ele => {
       ctx.beginPath();
-      // if (!data.colors[ele[2]]) {
-      //   console.log('================' + ele[2]);
-      // }
       ctx.fillStyle = data.colors[ele[2]].color;
       ctx.fillRect(ele[0] * gap + 1, ele[1] * gap + 1, gap - 1, gap - 1);
   });   
@@ -179,7 +201,7 @@ function drawMapLegends(ctx, x, y, width, height, data) {
   let posY = height - 25;
   const keys = Object.keys(data);
   keys.sort();
-  console.log('sort = ' + keys.toString());
+  // console.log('sort = ' + keys.toString());
   
   keys.forEach(key => {
     const item = data[key];
@@ -189,4 +211,22 @@ function drawMapLegends(ctx, x, y, width, height, data) {
 
     posY -= 25;
   }); 
+}
+
+var numberChart = null;
+
+function drawNumberChart(id, opts, data) {
+  const ctx = document.getElementById(id).getContext('2d');
+
+  if (numberChart) {
+    numberChart.data = data.data;
+    numberChart.options = data.options;
+    numberChart.update();
+  } else {
+  numberChart = new Chart(ctx, {
+    type: 'bar',
+    data: data.data,
+    options: data.options
+  });
+}
 }

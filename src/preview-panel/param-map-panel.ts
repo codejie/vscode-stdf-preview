@@ -95,6 +95,13 @@ type TestNumberOptions = {
 	}
 };
 
+type TestNumberMapInfo = {
+	cellInfo: any[][], // [x, y, index]
+	gapCount: {
+		[key: string]: number // index, count
+	}
+}
+
 // https://a.atmos.washington.edu/~ovens/javascript/colorpicker.html
 // const GAP_COLORS: string[] = [
 // 	'#4d0000',// invalid
@@ -120,7 +127,7 @@ const GAP_COLORS: string[] = [
 
 	'#3333ff', // 0
 	'#3366ff', // 1
-	'#3366ff', // 2	
+	'#4d94ff', // 2	
 	'#66ccff', // 3
 	'#00b300', // 4
 	'#009900', // 5
@@ -172,6 +179,7 @@ export default class ParamMapViewPanel extends PreviewPanel {
 		const gridScript = this.getResourceUri('grid/gridjs.umd.js');
 		const gridStyle = this.getResourceUri('grid/mermaid.min.css');
 		const chartScript = this.getResourceUri('grid/chart.min.js');
+		const chartAnnotationScript = this.getResourceUri('/grid/chartjs-plugin-annotation.min.js');
 
 		const scriptStyle = this.getResourceUri('grid/param-map-panel.css');
 		const script = this.getResourceUri('grid/param-map-panel.js');
@@ -180,6 +188,7 @@ export default class ParamMapViewPanel extends PreviewPanel {
 			'${gridStyle}': gridStyle,
 			'${gridScript}': gridScript,
 			'${chartScript}': chartScript,
+			'${chartAnnotationScript}': chartAnnotationScript,
 			'${scriptStyle}': scriptStyle,
 			'${script}': script,
 		});
@@ -310,7 +319,7 @@ export default class ParamMapViewPanel extends PreviewPanel {
 					if (data.min > ptr.result) {data.min = ptr.result;}
 					if (data.max < ptr.result) {data.max = ptr.result;}
 
-					if (ptr.result !== Number.NaN) {
+					if (!Number.isNaN(ptr.result)) {
 						++ data.pass;
 						data.sum += ptr.result;
 					}
@@ -325,7 +334,7 @@ export default class ParamMapViewPanel extends PreviewPanel {
 						min: ptr.result,
 						max: ptr.result,
 						pass: 1,
-						sum: (ptr.result !== Number.NaN ? ptr.result : 0),
+						sum: (Number.isNaN(ptr.result) ? 0 : ptr.result),
 						data: [[prr.x, prr.y, prr.hbin, prr.sbin, ptr.result]]
 					};
 
@@ -420,15 +429,15 @@ export default class ParamMapViewPanel extends PreviewPanel {
 		const data = this.numberData[index];
 		const item = this.numberItems[data.number];
 
-		const opts: TestNumberOptions = this.makeTestNumberOptions(item, data);
-
 		this.postTestNumberItemInfo(item);
 		this.postTestNumberDataInfo(data);
 
+		const opts: TestNumberOptions = this.makeTestNumberOptions(item, data);
+		const mapInfo: TestNumberMapInfo = this.makeTestNumberMapInfo(item, data, opts);
 		
-		this.postTestNumberDataMap(data, opts);
+		this.postTestNumberDataMap(mapInfo, opts);
 	}
-	
+
 	private makeTestNumberOptions(item: TestNumberItem, data: TestNumberData): TestNumberOptions{
 		const ret: TestNumberOptions = {
 			number: data.number,
@@ -447,6 +456,40 @@ export default class ParamMapViewPanel extends PreviewPanel {
 
 		return ret;
 	}
+
+	makeTestNumberMapInfo(item: TestNumberItem, data: TestNumberData, opts: TestNumberOptions): TestNumberMapInfo {
+		const ret: TestNumberMapInfo = {
+			cellInfo: [],
+			gapCount: {}
+		};
+
+		data.data.forEach(i => {
+			const index = this.makeResultColorIndex(i[4], opts);
+			ret.cellInfo.push([i[0], i[1], index]);
+			if (ret.gapCount[index]) {
+				++ ret.gapCount[index];
+			} else {
+				ret.gapCount[index] = 1;
+			}
+		});
+
+		return ret;
+	}
+	
+	private makeResultColorIndex(result: number, opts: TestNumberOptions): string {
+		if (Number.isNaN(result)) {
+			return '+1';
+		} else if (result < opts.low) {
+			return '+2';
+		} else if (result > opts.high) {
+			return '+3';
+		} else {
+			let index =  Math.floor((opts.max - result) / opts.gap);
+			if (index === opts.gapTotal)
+				index = opts.gapTotal - 1;
+			return String.fromCharCode(0x41 + index);
+		}
+	}	
 
 	private makeGapColors(opts: TestNumberOptions): void {
 		opts.gapColors = {
@@ -469,7 +512,7 @@ export default class ParamMapViewPanel extends PreviewPanel {
 		let start = opts.min;
 		for (let i = 0; i < opts.gapTotal; ++ i) {
 			opts.gapColors[String.fromCharCode(0x41 + i)] = {
-				name: `${String.fromCharCode(0x41 + i)} : ${start} - ${(start += opts.gap)}`,
+				name: `${start} - ${(start += opts.gap)}`, // ${String.fromCharCode(0x41 + i)} : 
 				color: GAP_COLORS[3 + i]
 			}
 		}
@@ -477,7 +520,6 @@ export default class ParamMapViewPanel extends PreviewPanel {
 
 
 	private postTestNumberItemInfo(item: TestNumberItem) {
-		// const item = this.numberItems[number];
 		const data = [[`${item.number} (${item.seqName})`, 
 						`Pass: ${(((item.count - item.fail) / item.count) * 100).toFixed(2)}%(${item.count - item.fail}/${item.count})`,
 						`min: ${item.min.toFixed(3)}`,
@@ -522,13 +564,7 @@ export default class ParamMapViewPanel extends PreviewPanel {
 		});
 	}
 
-	private postTestNumberDataMap(item: TestNumberData, opts: TestNumberOptions) {
-
-		const elements: any[] = [];
-		item.data.forEach(i => {
-			elements.push([i[0], i[1], this.makeResultColorIndex(i[4], opts)]);
-		});
-
+	private postTestNumberDataMap(info: TestNumberMapInfo, opts: TestNumberOptions) {
 		this.postViewMessage('update_map', {
 			container: 'number-canvas',
 			map: {
@@ -538,26 +574,52 @@ export default class ParamMapViewPanel extends PreviewPanel {
 					maxY: this.dieInfo.maxY
 				},
 				data: {
-					elements: elements,
+					elements: info.cellInfo,
 					colors: opts.gapColors
 				}
 			}
 		});
-	}
 
-	private makeResultColorIndex(result: number, opts: TestNumberOptions): string {
-		if (Number.isNaN(result)) {
-			return '+1';
-		} else if (result < opts.low) {
-			return '+2';
-		} else if (result > opts.high) {
-			return '+3';
-		} else {
-			let index =  Math.floor((opts.max - result) / opts.gap);
-			if (index === opts.gapTotal)
-				index = opts.gapTotal - 1;
-			return String.fromCharCode(0x41 + index);
-		}
+		this.postViewMessage('update_map_chart', {
+			container: 'number-chart',
+			chart: {
+				opts: {
+					labels: ['Invalid', 'Less Min', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'Greater Max'],
+					orders: ['+1', '+2', 'A', 'B','C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', '+3']
+				},
+				data: {
+					data: info.gapCount,
+					colors: opts.gapColors,
+					lines: [
+						{
+							name: 'Min',
+							color: '#ccff66',
+							xPos: 2 + ((opts.min - opts.min) / opts.gap)
+						},
+						{
+							name: 'Max',
+							color: '#ccff66',
+							xPos: 2 + ((opts.max - opts.min) / opts.gap)
+						},
+						{
+							name: 'Average',
+							color: '#66ff33',
+							xPos: 2 + ((opts.avg - opts.min) / opts.gap)
+						},
+						// {
+						// 	name: 'Low',
+						// 	color: '#ff0066',
+						// 	xPos: 2 + ((opts.low - opts.min) / opts.gap)
+						// },
+						// {
+						// 	name: 'High',
+						// 	color: '#ff0066',
+						// 	xPos: 2 + ((opts.high - opts.min) / opts.gap)
+						// }
+					]
+				}
+			}
+		});
 	}
 	
 }

@@ -58,6 +58,12 @@
     border: 1px solid red;
 }
 
+#number-chart {
+    width: 90%;
+    display: block;
+    border: 1px solid burlywood;
+}
+
 .container {
     height: auto;
     overflow: hidden;
