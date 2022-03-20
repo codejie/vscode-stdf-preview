@@ -96,30 +96,40 @@ type TestNumberOptions = {
 };
 
 // https://a.atmos.washington.edu/~ovens/javascript/colorpicker.html
+// const GAP_COLORS: string[] = [
+// 	'#4d0000',// invalid
+// 	'#ff00ff', // min
+// 	'#ff3300', // max	
+
+// 	'#e6ffe6',
+// 	'#b3ffb3',
+// 	'#80ff80',
+// 	'#4dff4d',
+// 	'#1aff1a',
+// 	'#00e600',
+// 	'#00b300',
+// 	'#008000',
+// 	'#004d00',
+// 	'#001a00',
+// ];
+
 const GAP_COLORS: string[] = [
-	// '#ffffff',
-	'#e6ffe6',
-	// '#ccffcc',
-	'#b3ffb3',
-	// '#99ff99',
-	'#80ff80',
-	// '#66ff66',
-	'#4dff4d',
-	// '#33ff33',
-	'#1aff1a',
-//	'#00ff00',
-	'#00e600',
-	// '#00cc00',
-	'#00b300',
-	// '#009900',
-	'#008000',
-	// '#006600',
-	'#004d00',
-	// '#003300',
-	'#001a00',
-	'#001a00' // for max
-	// '#000000'
+	'#4d0000',// invalid
+	'#ff00ff', // min
+	'#ff3300', // max
+
+	'#3333ff', // 0
+	'#3366ff', // 1
+	'#3366ff', // 2	
+	'#66ccff', // 3
+	'#00b300', // 4
+	'#009900', // 5
+	'#ffb366', // 6
+	'#ff9900', // 7	
+	'#ff8000', // 8
+	'#b36b00', // 9
 ];
+
 const GAP_TOTAL: number = 10;
 
 export default class ParamMapViewPanel extends PreviewPanel {
@@ -442,40 +452,27 @@ export default class ParamMapViewPanel extends PreviewPanel {
 		opts.gapColors = {
 			'+1': {
 				name: 'Invalid',
-				color: '#ffff00'
+				color: GAP_COLORS[0]
 			},
 			'+2': {
 				name: 'less than low',
-				color: '#ff6666'
+				color: GAP_COLORS[1]
 			},
 			'+3': {
 				name: 'greater than high',
-				color: '#990000'
+				color: GAP_COLORS[2]
 			}
 		};
 		
 		opts.gap = (opts.max - opts.min) / opts.gapTotal;
 
 		let start = opts.min;
-		for (let i = 0; i <= opts.gapTotal; ++ i) {
+		for (let i = 0; i < opts.gapTotal; ++ i) {
 			opts.gapColors[String.fromCharCode(0x41 + i)] = {
-				name: `${start} - ${(start += opts.gap)}`,
-				color: GAP_COLORS[i]
+				name: `${String.fromCharCode(0x41 + i)} : ${start} - ${(start += opts.gap)}`,
+				color: GAP_COLORS[3 + i]
 			}
 		}
-
-		// opts.gapColors[100] = {
-		// 	name: 'Invalid',
-		// 	color: '#ffff00'
-		// };
-		// opts.gapColors[101] = {
-		// 	name: 'less than low',
-		// 	color: '#ff6666'
-		// };
-		// opts.gapColors[102] = {
-		// 	name: 'greater than high',
-		// 	color: '#990000'
-		// };
 	}
 
 
@@ -501,7 +498,6 @@ export default class ParamMapViewPanel extends PreviewPanel {
 	}
 
 	private postTestNumberDataInfo(item: TestNumberData) {
-		// const item = this.numberData[index];
 		const data = [
 			['Number', `${item.number}`],
 			['Text', item.text],
@@ -544,12 +540,6 @@ export default class ParamMapViewPanel extends PreviewPanel {
 				data: {
 					elements: elements,
 					colors: opts.gapColors
-					// colors: [
-					// 	{
-					// 		index: 1,
-					// 		color: '#fff'
-					// 	}
-					// ]
 				}
 			}
 		});
@@ -563,7 +553,10 @@ export default class ParamMapViewPanel extends PreviewPanel {
 		} else if (result > opts.high) {
 			return '+3';
 		} else {
-			return String.fromCharCode(0x41 + Math.floor((opts.max - result) / opts.gap));
+			let index =  Math.floor((opts.max - result) / opts.gap);
+			if (index === opts.gapTotal)
+				index = opts.gapTotal - 1;
+			return String.fromCharCode(0x41 + index);
 		}
 	}
 	
