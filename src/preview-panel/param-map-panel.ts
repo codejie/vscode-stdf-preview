@@ -84,14 +84,43 @@ type TestNumberOptions = {
 	avg: number,
 	low: number,
 	high: number,
+	gap: number,
 	gapTotal: number,
 	gapColors: {
-		[key: number]: { // -1: NaN, -2: less low; -3: greater high; normal start from 0
+		[key: string]: { // -1: NaN, -2: less low; -3: greater high; normal start from 0
+			// order: number,
 			name: string,
 			color: string
 		}
 	}
 };
+
+// https://a.atmos.washington.edu/~ovens/javascript/colorpicker.html
+const GAP_COLORS: string[] = [
+	// '#ffffff',
+	'#e6ffe6',
+	// '#ccffcc',
+	'#b3ffb3',
+	// '#99ff99',
+	'#80ff80',
+	// '#66ff66',
+	'#4dff4d',
+	// '#33ff33',
+	'#1aff1a',
+//	'#00ff00',
+	'#00e600',
+	// '#00cc00',
+	'#00b300',
+	// '#009900',
+	'#008000',
+	// '#006600',
+	'#004d00',
+	// '#003300',
+	'#001a00',
+	'#001a00' // for max
+	// '#000000'
+];
+const GAP_TOTAL: number = 10;
 
 export default class ParamMapViewPanel extends PreviewPanel {
     private processIncrement: number = 0;
@@ -109,19 +138,6 @@ export default class ParamMapViewPanel extends PreviewPanel {
 		minY: Number.MAX_SAFE_INTEGER,
 		maxY: Number.MIN_SAFE_INTEGER
 	};
-
-	// private numberInfo: TestNumberInfoStruct = {
-	// 	number: 0,
-	// 	text: '',
-	// 	min: 0,
-	// 	max: 0,
-	// 	avg: 0,
-	// 	low: 0,
-	// 	high: 0,
-	// 	gap: 0,
-	// 	color: []		
-	// };
-
 
     constructor(context: vscode.ExtensionContext, column: vscode.ViewColumn, status: vscode.StatusBarItem) {
         super(context, {
@@ -311,7 +327,7 @@ export default class ParamMapViewPanel extends PreviewPanel {
 				if (this.dieInfo.minY > prr.y) {this.dieInfo.minY = prr.y;}
 				if (this.dieInfo.maxY < prr.y) {this.dieInfo.maxY = prr.y;}
 			} else {
-				console.log(`CANNOT find x/y - ${ptr.head}-${ptr.site}`);
+				// console.log(`CANNOT find x/y - ${ptr.head}-${ptr.site}`);
 			}
 		});
 
@@ -378,7 +394,7 @@ export default class ParamMapViewPanel extends PreviewPanel {
 		});
 	}
     
-	postUpdateTestItem(item: string, index: string) {
+	private postUpdateTestItem(item: string, index: string) {
 		this.postViewMessage('update_select_option', {
 			container: 'number-select',
 			option: {
@@ -400,20 +416,76 @@ export default class ParamMapViewPanel extends PreviewPanel {
 		this.postTestNumberDataInfo(data);
 
 		
-		this.postTestNumberDataMap(data);
+		this.postTestNumberDataMap(data, opts);
 	}
 	
-	makeTestNumberOptions(item: TestNumberItem, data: TestNumberData): TestNumberOptions {
-		throw new Error('Method not implemented.');
+	private makeTestNumberOptions(item: TestNumberItem, data: TestNumberData): TestNumberOptions{
+		const ret: TestNumberOptions = {
+			number: data.number,
+			text: data.text,
+			min: data.min,
+			max: data.max,
+			avg: data.sum / data.pass,
+			low: data.low,
+			high: data.high,
+			gap: 0,
+			gapTotal: GAP_TOTAL,
+			gapColors: {}
+		};
+
+		this.makeGapColors(ret);
+
+		return ret;
 	}
+
+	private makeGapColors(opts: TestNumberOptions): void {
+		opts.gapColors = {
+			'+1': {
+				name: 'Invalid',
+				color: '#ffff00'
+			},
+			'+2': {
+				name: 'less than low',
+				color: '#ff6666'
+			},
+			'+3': {
+				name: 'greater than high',
+				color: '#990000'
+			}
+		};
+		
+		opts.gap = (opts.max - opts.min) / opts.gapTotal;
+
+		let start = opts.min;
+		for (let i = 0; i <= opts.gapTotal; ++ i) {
+			opts.gapColors[String.fromCharCode(0x41 + i)] = {
+				name: `${start} - ${(start += opts.gap)}`,
+				color: GAP_COLORS[i]
+			}
+		}
+
+		// opts.gapColors[100] = {
+		// 	name: 'Invalid',
+		// 	color: '#ffff00'
+		// };
+		// opts.gapColors[101] = {
+		// 	name: 'less than low',
+		// 	color: '#ff6666'
+		// };
+		// opts.gapColors[102] = {
+		// 	name: 'greater than high',
+		// 	color: '#990000'
+		// };
+	}
+
 
 	private postTestNumberItemInfo(item: TestNumberItem) {
 		// const item = this.numberItems[number];
 		const data = [[`${item.number} (${item.seqName})`, 
 						`Pass: ${(((item.count - item.fail) / item.count) * 100).toFixed(2)}%(${item.count - item.fail}/${item.count})`,
-						`avg: ${(item.sum / (item.count - item.fail)).toFixed(2)}`,
 						`min: ${item.min.toFixed(3)}`,
-						`max: ${item.max.toFixed(3)}`]];
+						`max: ${item.max.toFixed(3)}`],
+						`avg: ${(item.sum / (item.count - item.fail)).toFixed(2)}`];
 			
 		this.postViewMessage('update_grid', {
 			container: 'numbergrid-container',
@@ -437,55 +509,62 @@ export default class ParamMapViewPanel extends PreviewPanel {
 			['Low', `${item.low}`],
 			['High', `${item.high}`],
 			['Min', `${item.min}`],
-			['Max', `${item.max}`]
+			['Max', `${item.max}`],
+			['Avg', `${item.sum / item.pass}`]
 		];
 
 		this.postViewMessage('update_grid', {
 			container: 'numbertable-container',
 			grid: {
 				opts: {
-					rows: 7,
+					rows: 8,
 					columns: 2,
 					widths: ['auto', 'auto']
 				},
 				data: data
 			}
 		});
-
-		// this.numberMapInfo.number = item.number;
-		// this.numberMapInfo.text = item.text;
-		// this.numberMapInfo.avg = item.sum / item.pass;
-		// this.numberMapInfo.
 	}
 
-	private postTestNumberDataMap(item: TestNumberData) {
-		// const item = this.numberData[index];
-		
+	private postTestNumberDataMap(item: TestNumberData, opts: TestNumberOptions) {
 
 		const elements: any[] = [];
 		item.data.forEach(i => {
-			elements.push([i[0], i[1], 1]);
+			elements.push([i[0], i[1], this.makeResultColorIndex(i[4], opts)]);
 		});
 
 		this.postViewMessage('update_map', {
 			container: 'number-canvas',
 			map: {
 				opts: {
-					grid: true,
+					grid: this.configuration.drawBackgroundGrid,
 					maxX: this.dieInfo.maxX,
 					maxY: this.dieInfo.maxY
 				},
 				data: {
 					elements: elements,
-					colors: [
-						{
-							index: 1,
-							color: '#fff'
-						}
-					]
+					colors: opts.gapColors
+					// colors: [
+					// 	{
+					// 		index: 1,
+					// 		color: '#fff'
+					// 	}
+					// ]
 				}
 			}
 		});
+	}
+
+	private makeResultColorIndex(result: number, opts: TestNumberOptions): string {
+		if (Number.isNaN(result)) {
+			return '+1';
+		} else if (result < opts.low) {
+			return '+2';
+		} else if (result > opts.high) {
+			return '+3';
+		} else {
+			return String.fromCharCode(0x41 + Math.floor((opts.max - result) / opts.gap));
+		}
 	}
 	
 }

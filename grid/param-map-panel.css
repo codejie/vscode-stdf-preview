@@ -49,7 +49,7 @@
 #numbertable-container {
     width: fit-content;
     height: fit-content;
-    background-color: #fffc54;
+    border: 1px solid #fffc54;
 }
 
 #number-canvas {
