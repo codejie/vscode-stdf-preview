@@ -2,7 +2,7 @@
 	"name": "vscode-stdf-preview",
 	"displayName": "STDF Preview",
 	"description": "vscode extension to preview STDF files.",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"publisher": "codejie",
 	"repository": {
 		"type": "git",
@@ -93,6 +93,13 @@
 					"when": "resourceFilename =~ /.*\\.(std|stdf)/",
 					"group": "navigation@5"
 				}
+			],
+			"editor/title": [
+				{
+					"command": "stdf.profile.preview",
+					"when": "resourceFilename =~ /.*\\.(std|stdf)/",
+					"group": "navigation"
+				}					
 			]
 		},
 		"submenus": [

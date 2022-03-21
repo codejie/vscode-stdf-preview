@@ -22,7 +22,7 @@ export default class RecordsViewPanel extends PreviewPanel {
             uri: context.extensionUri,
             name: 'Full Preview',
             column: column || vscode.ViewColumn.One,
-            type: 'full.type',
+            type: 'records.type',
             resourcePath: ['grid'],
 			status: status
         });

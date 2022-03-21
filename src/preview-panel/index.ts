@@ -69,6 +69,8 @@ export abstract class PreviewPanel extends EventEmitter {
         });
 
         this.panel.webview.html = this.getHtml();
+
+        // vscode.commands.executeCommand('setContext', 'current.viewType', opts.type);
     }
 
     private fetchConfiguration(config: vscode.WorkspaceConfiguration): Configuration {
