@@ -525,8 +525,8 @@ export default class ParamMapViewPanel extends PreviewPanel {
 		const data = [[`${item.number} (${item.seqName})`, 
 						`Pass: ${(((item.count - item.fail) / item.count) * 100).toFixed(3)}%(${item.count - item.fail}/${item.count})`,
 						`min: ${item.min}`,
-						`max: ${item.max}`],
-						`sum: ${Number.isNaN(avg) ? 'NaN' : avg}`];
+						`max: ${item.max}`,
+						`sum: ${Number.isNaN(avg) ? 'NaN' : avg}`]];
 			
 		this.postViewMessage('update_grid', {
 			container: 'numbergrid-container',
