@@ -51,21 +51,24 @@ function onUpdateNumberMapChart(container, data) {
   });        
 
   const lines = {};
-  let no = 0;
+  // let no = 0;
   data.data.lines.forEach(line => {
-    lines[`line${++ no}`] = {
-      type: 'line',
-      xMin: line.xPos,
-      xMax: line.xPos,
-      borderDash: [2, 5],
-      borderWidth: 1,
-      borderColor: line.color,
-      label: {
-        content: line.name,
-        color: line.color,
-        enabled: true,
-        backgroundColor: 'transparent',
-        position: 'start'
+    console.log(line.xPos);
+    if (line.xPos) {
+      lines[line.name] = {
+        type: 'line',
+        xMin: line.xPos,
+        xMax: line.xPos,
+        borderDash: [2, 5],
+        borderWidth: 1,
+        borderColor: line.color,
+        label: {
+          content: line.name,
+          color: line.color,
+          enabled: true,
+          backgroundColor: 'transparent',
+          position: 'start'
+        }
       }
     }
   });
@@ -157,8 +160,8 @@ function drawMap(id, opts, data) {
   // const width = Math.min(window.innerWidth, window.innerHeight * 0.96);
   // const columns = Math.max(opts.maxX, opts.maxY);
 
-  // canvas.width  = 800;//window.innerWidth;
-  // canvas.height = 600;//width;//window.innerHeight;
+  canvas.width  = 1000;//window.innerWidth;
+  canvas.height = 600;//width;//window.innerHeight;
 
   const width = Math.min(canvas.width, canvas.height);
   const columns = Math.max(opts.maxX, opts.maxY);

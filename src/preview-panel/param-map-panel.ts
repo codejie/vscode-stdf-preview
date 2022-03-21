@@ -397,7 +397,7 @@ export default class ParamMapViewPanel extends PreviewPanel {
 		const data: any[] = [];
 		data.push(['WaferId', this.waferInfo.waferId, 'LotId', this.waferInfo.lotId, 'JobName', this.waferInfo.jobName]);
 		data.push(['ProductId', this.waferInfo.partType, 
-			'PassRate', `${((this.waferInfo.pass! / this.waferInfo.total!) * 100).toFixed(2)}% (${this.waferInfo.pass}/${this.waferInfo.total})`,
+			'PassRate', `${((this.waferInfo.pass! / this.waferInfo.total!) * 100).toFixed(3)}% (${this.waferInfo.pass}/${this.waferInfo.total})`,
 			'Start', this.waferInfo.start]);
 			
 		this.postViewMessage('update_grid', {
@@ -484,7 +484,8 @@ export default class ParamMapViewPanel extends PreviewPanel {
 		} else if (result > opts.high) {
 			return '+3';
 		} else {
-			let index =  Math.floor((opts.max - result) / opts.gap);
+			// let index =  Math.floor((opts.max - result) / opts.gap);
+			let index =  Math.floor((result - opts.min) / opts.gap);
 			if (index === opts.gapTotal)
 				index = opts.gapTotal - 1;
 			return String.fromCharCode(0x41 + index);
@@ -498,11 +499,11 @@ export default class ParamMapViewPanel extends PreviewPanel {
 				color: GAP_COLORS[0]
 			},
 			'+2': {
-				name: 'less than low',
+				name: 'Less than low',
 				color: GAP_COLORS[1]
 			},
 			'+3': {
-				name: 'greater than high',
+				name: 'Greater than high',
 				color: GAP_COLORS[2]
 			}
 		};
@@ -520,11 +521,12 @@ export default class ParamMapViewPanel extends PreviewPanel {
 
 
 	private postTestNumberItemInfo(item: TestNumberItem) {
+		const avg = (item.sum / (item.count - item.fail));
 		const data = [[`${item.number} (${item.seqName})`, 
-						`Pass: ${(((item.count - item.fail) / item.count) * 100).toFixed(2)}%(${item.count - item.fail}/${item.count})`,
-						`min: ${item.min.toFixed(3)}`,
-						`max: ${item.max.toFixed(3)}`],
-						`avg: ${(item.sum / (item.count - item.fail)).toFixed(2)}`];
+						`Pass: ${(((item.count - item.fail) / item.count) * 100).toFixed(3)}%(${item.count - item.fail}/${item.count})`,
+						`min: ${item.min}`,
+						`max: ${item.max}`],
+						`sum: ${Number.isNaN(avg) ? 'NaN' : avg}`];
 			
 		this.postViewMessage('update_grid', {
 			container: 'numbergrid-container',
@@ -541,27 +543,29 @@ export default class ParamMapViewPanel extends PreviewPanel {
 
 	private postTestNumberDataInfo(item: TestNumberData) {
 		const data = [
-			['Number', `${item.number}`],
-			['Text', item.text],
-			['Unit', item.unit],
-			['Low', `${item.low}`],
-			['High', `${item.high}`],
-			['Min', `${item.min}`],
-			['Max', `${item.max}`],
-			['Avg', `${item.sum / item.pass}`]
+			['Number', `${item.number}`,
+			'Text', item.text,
+			'Unit', item.unit],
+			['PassRate', `${((item.pass / item.data.length) * 100).toFixed(3)}% (${item.pass}/${item.data.length})`,
+			'Low', `${item.low}`,
+			'High', `${item.high}`],
+			['Avg', `${item.sum / item.pass}`,
+			'Min', `${item.min}`,
+			'Max', `${item.max}`]
 		];
 
 		this.postViewMessage('update_grid', {
 			container: 'numbertable-container',
 			grid: {
 				opts: {
-					rows: 8,
-					columns: 2,
-					widths: ['auto', 'auto']
+					rows: 3,
+					columns: 6,
+					widths: ['auto', 'auto', 'auto', 'auto', 'auto', 'auto']
 				},
 				data: data
 			}
 		});
+
 	}
 
 	private postTestNumberDataMap(info: TestNumberMapInfo, opts: TestNumberOptions) {
@@ -606,16 +610,16 @@ export default class ParamMapViewPanel extends PreviewPanel {
 							color: '#66ff33',
 							xPos: 2 + ((opts.avg - opts.min) / opts.gap)
 						},
-						// {
-						// 	name: 'Low',
-						// 	color: '#ff0066',
-						// 	xPos: 2 + ((opts.low - opts.min) / opts.gap)
-						// },
-						// {
-						// 	name: 'High',
-						// 	color: '#ff0066',
-						// 	xPos: 2 + ((opts.high - opts.min) / opts.gap)
-						// }
+						{
+							name: 'Low',
+							color: '#ff0066',
+							xPos: 2 + ((opts.low - opts.min) / opts.gap)
+						},
+						{
+							name: 'High',
+							color: '#ff0066',
+							xPos: 2 + ((opts.high - opts.min) / opts.gap)
+						}
 					]
 				}
 			}

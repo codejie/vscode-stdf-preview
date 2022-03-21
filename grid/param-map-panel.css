@@ -6,13 +6,13 @@
     top: 0;
     width: auto;
     height: auto;
-    border: 1px solid blue;
+    /* border: 1px solid blue; */
 }
 
 #waferinfo-container {
     width: auto;
     padding: 4px;
-    border: 1px solid rebeccapurple;
+    /* border: 1px solid rebeccapurple; */
 }
 
 #numberinfo-container {
@@ -22,12 +22,13 @@
     display: grid;
     grid-template-columns: 30% auto;
     padding: 4px;
-    border: 1px solid yellowgreen;
+    background-color: #3d5c5c;
+    /* border: 1px solid yellowgreen; */
 }
 
 #numberselect-container {
     height: fit-content;
-    background-color: aquamarine;
+    /* background-color: aquamarine; */
 }
 
 #numbergrid-container {
@@ -35,7 +36,7 @@
     height: 30px;
     float: left;
     overflow: hidden;
-    background-color: blueviolet;
+    /* background-color: blueviolet; */
 }
 
 #map-container {
@@ -47,21 +48,32 @@
 }
 
 #numbertable-container {
-    width: fit-content;
-    height: fit-content;
-    border: 1px solid #fffc54;
+    width: 100%;
+    height: 100%;
+    /* border: 1px solid #fffc54; */
+}
+
+#numbermap-cantainer {
+    margin-top: 8px;
+    display: grid;
+    width: 100%;
+    height: 100%;
+    grid-template-columns: 65% auto;
 }
 
 #number-canvas {
     display: block;
-    /* margin-left: 40px; */
-    border: 1px solid red;
+    /* margin-left: 40px;
+    margin-right: 40px; */
+    /* border: 1px solid red; */
 }
 
 #number-chart {
-    width: 90%;
-    display: block;
-    border: 1px solid burlywood;
+    width: auto;
+    height: auto;
+    /* margin-left: 40px;
+    margin-right: 40px; */
+    /* border: 1px solid burlywood; */
 }
 
 .container {
