@@ -3,7 +3,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { PreviewPanel, ProcessArgs } from '.';
 import { STDFAnalyser, Record } from 'stdf-analyser';
-import { makeResult } from './helper';
+import * as helper from './helper';
 
 interface WaferInfoStruct {
 	waferId?: string,
@@ -33,16 +33,18 @@ interface TestNumberItemStruct {
 }
 
 type TestNumberData = {
-	number: number;
-	text: string;
-	unit: string;
-	low: number;
-	high: number;
-	min: number;
-	max: number;
-	pass: number;
-	sum: number;
-	data: number[][]; // x, y, hbin, sbin, result
+	number: number,
+	text: string,
+	unit: string,
+	low: number,
+	high: number,
+	min: number,
+	max: number,
+	pass: number,
+	sum: number,
+	data: number[][], // x, y, hbin, sbin, result
+	dev: number,
+	sigmas: number[][] // sigma, cp, cpk	
 };
 
 interface TestNumberDataStruct {
@@ -101,6 +103,20 @@ type TestNumberMapInfo = {
 		[key: string]: number // index, count
 	}
 }
+
+// type TestNumberAnalyseDataStruct = {
+// 	number: number,
+// 	text: string,
+// 	pass: number,
+// 	total: number,
+// 	low: number,
+// 	high: number,
+// 	min: number,
+// 	max: number,
+// 	avg: number,
+// 	dev: number,
+// 	sigmas: number[][] // sigma, cp, cpk
+// };
 
 // https://a.atmos.washington.edu/~ovens/javascript/colorpicker.html
 // const GAP_COLORS: string[] = [
@@ -173,6 +189,10 @@ export default class ParamMapViewPanel extends PreviewPanel {
 				}
 			}
 		});
+
+		// this.on('event_number_analyse', () => {
+		// 	this.onTestNumberAnalyse();
+		// });
     }
 
     getHtml(): string {
@@ -228,6 +248,7 @@ export default class ParamMapViewPanel extends PreviewPanel {
 		input.close();		
 
 		// this.postUpdateTestItems(this.numberData);
+		this.analyseTestItemData();
 		this.onTestNumberChanged(Object.keys(this.numberData)[0]);
 
 		process.report({
@@ -235,8 +256,195 @@ export default class ParamMapViewPanel extends PreviewPanel {
 			message: 'process end.'
 		});
 
+		// this.emit('event_number_analyse');
+
+		this.postTestNumberAnalyseData();
+
 		return Promise.resolve();
     }
+
+	private analyseTestItemData(): void {
+		Object.keys(this.numberData).forEach(key => {
+			const item = this.numberData[key];
+
+			const avg = item.sum / item.pass;
+			const data: number[] = [];
+			item.data.forEach(i => {
+				if (!Number.isNaN(i[4])) {
+					data.push(i[4]);
+				}
+			});
+			item.dev = helper.deviation(avg, data);
+			const low = (Number.isNaN(item.low) || item.low === undefined) ? item.min : item.low;
+			const high = (Number.isNaN(item.high) || item.low === undefined) ? item.max : item.high;
+
+			// const sigmas: number[][] = [];
+			for (let s = 6; s > 0; -- s) {
+				const cp = helper.cp(s, low, high, item.dev);
+				const cpk = helper.cpk(cp, avg, low, high);
+
+				item.sigmas.push([s, cp, cpk]);
+			}
+		});		
+	}
+
+	// onTestNumberAnalyse(): void {
+	// 	const ret: TestNumberAnalyseDataStruct[] = [];
+	// 	Object.keys(this.numberData).forEach(key => {
+	// 		const item = this.numberData[key];
+
+	// 		const avg = item.sum / item.pass;
+	// 		const data: number[] = [];
+	// 		item.data.forEach(i => {
+	// 			if (!Number.isNaN(i[4])) {
+	// 				data.push(i[4]);
+	// 			}
+	// 		});
+	// 		const dev = helper.deviation(avg, data);
+	// 		const low = (Number.isNaN(item.low) || item.low === undefined) ? item.min : item.low;
+	// 		const high = (Number.isNaN(item.high) || item.low === undefined) ? item.max : item.high;
+
+	// 		const sigmas: number[][] = [];
+	// 		for (let s = 6; s > 0; -- s) {
+	// 			const cp = helper.cp(s, low, high, dev);
+	// 			const cpk = helper.cpk(cp, avg, low, high);
+
+	// 			sigmas.push([s, cp, cpk]);
+	// 		}
+
+	// 		ret.push({
+	// 			number: item.number,
+	// 			text: item.text,
+	// 			pass: item.pass,
+	// 			total: item.data.length,
+	// 			low,
+	// 			high,
+	// 			min: item.min,
+	// 			max: item.max,
+	// 			avg,
+	// 			dev,
+	// 			sigmas
+	// 		});
+	// 	});
+
+	// 	const gridData: string[][] = [];
+	// 	let no = 0;
+	// 	ret.forEach(item => {
+	// 		const t = [];
+	// 		t.push(...[
+	// 			`${++ no}`,
+	// 			`${item.number}-${item.text}`,
+	// 			`${(item.pass / (item.total) * 100).toFixed(2)}%`,
+	// 			`${item.low.toFixed(3)}/${item.high.toFixed(3)}`,
+	// 			`${item.min.toFixed(3)}/${item.max.toFixed(3)}`
+	// 		]);
+	// 		item.sigmas.forEach(s => {
+	// 			s.forEach(i => {
+	// 				t.push(i.toFixed(3));
+	// 			})
+	// 		});
+	// 		gridData.push(t);
+	// 	});
+
+	// 	const data = {
+	// 		container: 'number-analyse-grid',
+	// 		grid: {
+	// 			columns: [
+	// 				{
+	// 					name: 'No',
+	// 					width: '3%'
+	// 				},
+	// 				{
+	// 					name: 'Index',
+	// 					width: '12%'
+	// 				},
+	// 				{
+	// 					name: 'PassRate',
+	// 					width: '8%'
+	// 				},
+	// 				{
+	// 					name: 'Limited',
+	// 					width: '10%'
+	// 				},
+	// 				{
+	// 					name: 'Range',
+	// 					width: '10%'
+	// 				},
+	// 				{
+	// 					name: '6Sigma',
+	// 					columns: [
+	// 						{
+	// 							name: 'cp'
+	// 						},
+	// 						{
+	// 							name: 'cpk'
+	// 						}
+	// 					]
+	// 				},
+	// 				{
+	// 					name: '5Sigma',
+	// 					columns: [
+	// 						{
+	// 							name: 'cp'
+	// 						},
+	// 						{
+	// 							name: 'cpk'
+	// 						}
+	// 					]
+	// 				},
+	// 				{
+	// 					name: '4Sigma',
+	// 					columns: [
+	// 						{
+	// 							name: 'cp'
+	// 						},
+	// 						{
+	// 							name: 'cpk'
+	// 						}
+	// 					]
+	// 				},
+	// 				{
+	// 					name: '3Sigma',
+	// 					columns: [
+	// 						{
+	// 							name: 'cp'
+	// 						},
+	// 						{
+	// 							name: 'cpk'
+	// 						}
+	// 					]
+	// 				},
+	// 				{
+	// 					name: '2Sigma',
+	// 					columns: [
+	// 						{
+	// 							name: 'cp'
+	// 						},
+	// 						{
+	// 							name: 'cpk'
+	// 						}
+	// 					]
+	// 				},
+	// 				{
+	// 					name: '1Sigma',
+	// 					columns: [
+	// 						{
+	// 							name: 'cp'
+	// 						},
+	// 						{
+	// 							name: 'cpk'
+	// 						}
+	// 					]
+	// 				}								
+	// 			],
+	// 			data: gridData
+	// 		}
+	// 	};
+
+	// 	this.postViewMessage('update_number_analyse', data);
+
+	// 	// return ret;
+	// }
 
 	private onRecord(process: vscode.Progress<ProcessArgs>, record: Record.RecordBase): Promise<void> {
 
@@ -335,7 +543,9 @@ export default class ParamMapViewPanel extends PreviewPanel {
 						max: ptr.result,
 						pass: 1,
 						sum: (Number.isNaN(ptr.result) ? 0 : ptr.result),
-						data: [[prr.x, prr.y, prr.hbin, prr.sbin, ptr.result]]
+						data: [[prr.x, prr.y, prr.hbin, prr.sbin, ptr.result]],
+						dev: 0,
+						sigmas: []
 					};
 
 					this.postUpdateTestItem(`${ptr.number} - ${ptr.text}`, index);
@@ -362,13 +572,13 @@ export default class ParamMapViewPanel extends PreviewPanel {
 
         const optFlag = record.fields[8].value;
         const valid = (record.fields[3].value === 0) ? 1 : 0;
-        const result = makeResult(record.fields[5].value, (valid === 1), ((optFlag & 0x0001) === 0x0000), record.fields[9].value);
+        const result = helper.makeResult(record.fields[5].value, (valid === 1), ((optFlag & 0x0001) === 0x0000), record.fields[9].value);
 
 		const lowValid = (optFlag & 0x0050) === 0x0000;
 		const highValid = (optFlag & 0x00A0) === 0x0000;
 
-		const lowLimit = makeResult(record.fields[12].value, lowValid, lowValid, record.fields[10].value);
-		const highLimit = makeResult(record.fields[13].value, highValid, highValid, record.fields[11].value);
+		const lowLimit = helper.makeResult(record.fields[12].value, lowValid, lowValid, record.fields[10].value);
+		const highLimit = helper.makeResult(record.fields[13].value, highValid, highValid, record.fields[11].value);
 
 		this.ptrData.push({
 			head: record.fields[1].value,
@@ -551,14 +761,17 @@ export default class ParamMapViewPanel extends PreviewPanel {
 			'High', `${item.high}`],
 			['Avg', `${item.sum / item.pass}`,
 			'Min', `${item.min}`,
-			'Max', `${item.max}`]
+			'Max', `${item.max}`],
+			['Devation', `${item.dev}`,
+			'6sigma.cp', `${item.sigmas![0][1]}`,
+			'6sigma.cpk', `${item.sigmas![0][2]}`]
 		];
 
 		this.postViewMessage('update_grid', {
 			container: 'numbertable-container',
 			grid: {
 				opts: {
-					rows: 3,
+					rows: 4,
 					columns: 6,
 					widths: ['auto', 'auto', 'auto', 'auto', 'auto', 'auto']
 				},
@@ -625,5 +838,46 @@ export default class ParamMapViewPanel extends PreviewPanel {
 			}
 		});
 	}
+
+	postTestNumberAnalyseData() {
+		const data: string[][] = [];
+
+		data.push(['No', 'Number', 'Text', 'Pass', 'Average', 'Devation',
+				'6σ.cp', '6σ.cpk','5σ.cp', '5σ.cpk','4σ.cp', '4σ.cpk',
+				'3σ.cp', '3σ.cpk','2σ.cp', '2σ.cpk','1σ.cp', '1σ.cpk']);
+
+		let no = 0;
+		Object.keys(this.numberData).forEach(key => {
+			const item = this.numberData[key];
+			const t = [];
+			t.push(...[
+				`${++ no}`,
+				`${item.number}`,
+				`${item.text}`,
+				`${(item.pass / (item.data.length) * 100).toFixed(2)}%`,
+				`${(item.sum / item.pass).toFixed(2)}`,
+				`${item.dev.toFixed(3)}`
+			]);
+			item.sigmas.forEach(s => {
+				t.push(s[1].toFixed(3));
+				t.push(s[2].toFixed(3));
+			});
+			data.push(t);
+		});
+
+		this.postViewMessage('update_grid', {
+			container: 'number-analyse-grid',
+			grid: {
+				opts: {
+					rows: (no - 1),
+					columns: 18,
+					widths: ['auto', 'auto', 'auto', 'auto', 'auto', 'auto',
+						'auto', 'auto', 'auto', 'auto', 'auto', 'auto',
+						'auto', 'auto', 'auto', 'auto', 'auto', 'auto']
+				},
+				data: data
+			}
+		});
+	}	
 	
 }

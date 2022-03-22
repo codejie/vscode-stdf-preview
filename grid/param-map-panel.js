@@ -16,6 +16,11 @@ window.addEventListener('message', (event) => {
       }
       case 'update_map_chart': {
         onUpdateNumberMapChart(event.data.container, event.data.chart);
+        break;
+      }
+      case 'update_number_analyse': {
+        onNumberAnalyseData(event.data.container, event.data.grid);
+        break;
       }
   }
 });
@@ -53,7 +58,7 @@ function onUpdateNumberMapChart(container, data) {
   const lines = {};
   // let no = 0;
   data.data.lines.forEach(line => {
-    console.log(line.xPos);
+    // console.log(line.xPos);
     if (line.xPos) {
       lines[line.name] = {
         type: 'line',
@@ -96,6 +101,18 @@ function onUpdateNumberMapChart(container, data) {
   };
 
   drawNumberChart(container, {}, chartData);  
+}
+
+function onNumberAnalyseData(container, data) {
+  console.log(data);
+  new gridjs.Grid({
+        ...data,
+        style: {
+            table: {
+                width: '100%'
+            }
+        }                
+    }).render(document.getElementById(container));
 }
 
 function onNumberChange(value) {
