@@ -52,7 +52,7 @@ export function activate(context: vscode.ExtensionContext) {
 		recordsViewPanel.emit('args', args);
 		return recordsViewPanel.viewPanel;
 	});
-	context.subscriptions.push(records);		
+	context.subscriptions.push(records);
 
 	// context.subscriptions.push(disposable);
 }

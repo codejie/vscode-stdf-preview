@@ -38,6 +38,20 @@
 				]
 			}
 		],
+		"customEditors": [
+			{
+				"viewType": "stdf.profile.preview",
+				"displayName": "STDF Preview",
+				"selector": [
+					{
+						"filenamePattern": "*.std"
+					},
+					{
+						"filenamePattern": "*.stdf"
+					}						
+				]
+			}
+		],		
 		"commands": [
 			{
 				"command": "stdf.profile.preview",
@@ -99,7 +113,7 @@
 					"command": "stdf.profile.preview",
 					"when": "resourceFilename =~ /.*\\.(std|stdf)/",
 					"group": "navigation"
-				}					
+				}				
 			]
 		},
 		"submenus": [

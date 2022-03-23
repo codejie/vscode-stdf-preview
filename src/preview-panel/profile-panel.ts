@@ -56,6 +56,8 @@ export default class ProfileViewPanel extends PreviewPanel {
             resourcePath: ['grid'],
 			status: status
         });
+		const file = vscode.workspace.workspaceFile;
+		console.log(file);
     }
 
     getHtml(): string {
