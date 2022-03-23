@@ -15,7 +15,7 @@
 		"Other"
 	],
 	"activationEvents": [
-		"onCommand:vscode-stdf-preview.helloWorld",
+		"onCustomEditor:STDF.Preview.Editor",
 		"onCommand:stdf.profile.preview",
 		"onCommand:stdf.map.sbin.preview",
 		"onCommand:stdf.map.param.preview",
@@ -40,7 +40,7 @@
 		],
 		"customEditors": [
 			{
-				"viewType": "stdf.profile.preview",
+				"viewType": "STDF.Preview.Editor",
 				"displayName": "STDF Preview",
 				"selector": [
 					{

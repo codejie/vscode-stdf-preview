@@ -6,6 +6,7 @@ import RecordsViewPanel from './preview-panel/records-panel';
 import ProfileViewPanel from './preview-panel/profile-panel';
 import SBinMapViewPanel from './preview-panel/sbin-map-panel';
 import ParamMapViewPanel from './preview-panel/param-map-panel';
+import { STDFEditorProvider } from './stdf-editor-provider';
 
 
 // this method is called when your extension is activated
@@ -54,7 +55,13 @@ export function activate(context: vscode.ExtensionContext) {
 	});
 	context.subscriptions.push(records);
 
-	// context.subscriptions.push(disposable);
+	let provider = vscode.window.registerCustomEditorProvider(STDFEditorProvider.viewType, new STDFEditorProvider(context), {
+		webviewOptions: {
+			retainContextWhenHidden: true
+		},
+		supportsMultipleEditorsPerDocument: true
+	});
+	context.subscriptions.push(provider);
 }
 
 // this method is called when your extension is deactivated
