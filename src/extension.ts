@@ -1,12 +1,11 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
-import { Configuration } from './preview-panel';
-import RecordsViewPanel from './preview-panel/records-panel';
-import ProfileViewPanel from './preview-panel/profile-panel';
-import SBinMapViewPanel from './preview-panel/sbin-map-panel';
-import ParamMapViewPanel from './preview-panel/param-map-panel';
-import { STDFEditorProvider } from './stdf-editor-provider';
+import { STDFEditorProvider } from './editor-provider';
+import ParamMapViewPanel from './preview-panels/param-map-panel';
+import ProfileViewPanel from './preview-panels/profile-panel';
+import RecordsViewPanel from './preview-panels/records-panel';
+import SBinMapViewPanel from './preview-panels/sbin-map-panel';
 
 
 // this method is called when your extension is activated
@@ -28,28 +27,28 @@ export function activate(context: vscode.ExtensionContext) {
 	// 	console.log(context);
 	// });
 	let profile = vscode.commands.registerCommand('stdf.profile.preview', async (args) => {
-		const profileViewPanel: ProfileViewPanel = new ProfileViewPanel(context, vscode.ViewColumn.One, status);
+		const profileViewPanel: ProfileViewPanel = new ProfileViewPanel(context);
 		profileViewPanel.emit('args', args);
 		return profileViewPanel.viewPanel;
 	});
 	context.subscriptions.push(profile);
 
 	let map = vscode.commands.registerCommand('stdf.map.sbin.preview', (args) => {
-		const mapViewPanel = new SBinMapViewPanel(context, vscode.ViewColumn.One, status);
+		const mapViewPanel = new SBinMapViewPanel(context);
 		mapViewPanel.emit('args', args);
 		return mapViewPanel.viewPanel;
 	});
 	context.subscriptions.push(map);	
 
 	let param = vscode.commands.registerCommand('stdf.map.param.preview', (args) => {
-		const panel = new ParamMapViewPanel(context, vscode.ViewColumn.One, status);
+		const panel: ParamMapViewPanel = new ParamMapViewPanel(context);
 		panel.emit('args', args);
 		return panel.viewPanel;
 	});
 	context.subscriptions.push(param);	
 
 	let records = vscode.commands.registerCommand('stdf.records.preview', (args) => {
-		const recordsViewPanel = new RecordsViewPanel(context, vscode.ViewColumn.One, status);
+		const recordsViewPanel = new RecordsViewPanel(context);
 		recordsViewPanel.emit('args', args);
 		return recordsViewPanel.viewPanel;
 	});

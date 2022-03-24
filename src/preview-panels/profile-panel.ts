@@ -1,12 +1,8 @@
-import * as path from 'path';
+import * as vscode from 'vscode';
 import * as fs from 'fs';
-import * as vscode from "vscode";
+import * as path from 'path';
 import { STDFAnalyser, Record } from 'stdf-analyser';
-
-interface ProcessArgs {
-    message?: string | undefined;
-    increment?: number | undefined;
-}
+import { PreviewPanel, ProcessArgs } from ".";
 
 interface WaferInfoStruct {
 	waferId?: string,
@@ -43,82 +39,57 @@ const COMMAND_CONFIG: string = 'cmd_config';
 const COMMAND_COMPONENT: string = 'cmd_component';
 const COMMAND_DRAWRECT: string = 'cmd_draw_rect';
 
-class WebviewCollection {
+export default class ProfileViewPanel extends PreviewPanel {
 
-	private readonly _webviews = new Set<{
-		readonly resource: string;
-		readonly webviewPanel: vscode.WebviewPanel;
-	}>();
+	private processIncrement: number = 0;
 
-	/**
-	 * Get all known webviews for a given uri.
-	 */
-	public *get(uri: vscode.Uri): Iterable<vscode.WebviewPanel> {
-		const key = uri.toString();
-		for (const entry of this._webviews) {
-			if (entry.resource === key) {
-				yield entry.webviewPanel;
-			}
-		}
-	}
-
-	/**
-	 * Add a new webview to the collection.
-	 */
-	public add(uri: vscode.Uri, webviewPanel: vscode.WebviewPanel) {
-		const entry = { resource: uri.toString(), webviewPanel };
-		this._webviews.add(entry);
-
-		webviewPanel.onDidDispose(() => {
-			this._webviews.delete(entry);
-		});
-	}
-}
-
-class STDFDocument extends vscode.Disposable implements vscode.CustomDocument {
-
-    uri: vscode.Uri;
-	private viewPanel!: vscode.WebviewPanel;
-	
-	processIncrement: number = 0;
 	private waferInfo: WaferInfoStruct = {};
 	private testNumberData: TestNumberStruct[] = [];
 	private binData: BinDataStruct[] = [];
 
-	constructor(uri: vscode.Uri) {
-		super(() => { this.onDispose(); });
-
-		this.uri = uri;
-	}
-
-	onDispose(): void {
-		super.dispose();
-	}
-
-	analyse(process: vscode.Progress<ProcessArgs>, webview: vscode.WebviewPanel): Promise<void> {
-		this.viewPanel = webview;
-
-		return this.onFile(process, this.uri.fsPath);
-	}
-	
-	postViewMessage(command: any, data: any) {
-        this.viewPanel.webview.postMessage({
-            command: command,
-            ...data
+    constructor(context: vscode.ExtensionContext, panel?: vscode.WebviewPanel) {
+        super(context, panel, {
+            uri: context.extensionUri,
+            name: 'ProfileView',
+            type: 'stdf.profile.type',
+            resourcePath: ['grid']
         });
-	}
-	
-	async onFile(process: vscode.Progress<ProcessArgs>, filename: string): Promise<void> {
-		// this.filename = filename;
+    }
 
-		this.viewPanel.title = path.basename(filename);
+    getHtml(): string {
+		// const gridStyle = this.getResourceUri('grid/components.css');
+		// const commonScript = this.getResourceUri('grid/common.js');
+		const scriptUri = this.getResourceUri('grid/view-panel.js');
+		const gridUri = this.getResourceUri('grid/gridjs.umd.js');
+		const styleMainUri = this.getResourceUri('grid/mermaid.min.css');
+
+		return `
+			<!DOCTYPE html>
+			<html lang="en">
+			<head>
+				<link href="${styleMainUri}" rel="stylesheet"/>
+				<script type="text/javascript" src=${gridUri}></script>
+				<script type="text/javascript" src="${scriptUri}"></script>				
+			</head>
+			<body>
+				<div id="container" width="100%"/>
+			</body>
+			</html>
+		`;
+    }
+
+	async onFile(process: vscode.Progress<ProcessArgs>, filename: string): Promise<void> {
+		this.filename = filename;
+
+		this.panel!.title = path.basename(this.filename);
 
 		process.report({
-			increment: (this.processIncrement += 10),
+			increment: (this.processIncrement += 1),
 			message: 'create STDF analyser...'
 		});
+
 		const analyser: STDFAnalyser = new STDFAnalyser({
-			included: ['MIR', 'WIR', 'WRR'] //, 'TSR', 'SBR', 'HBR'
+			included: ['MIR', 'WIR', 'WRR', 'TSR', 'SBR']//, 'HBR']
 		});
 
 		process.report({
@@ -126,12 +97,12 @@ class STDFDocument extends vscode.Disposable implements vscode.CustomDocument {
 			message: 'open STDF file...'
 		});
 
-		const input = fs.createReadStream(filename);
+		const input = fs.createReadStream(this.filename);
 
 		for await (const chunk of input) {
-			// if (!this.running) {
-			// 	break;
-			// }
+			if (!this.running) {
+				break;
+			}
 			await analyser.analyseSync(<Buffer>chunk, (record) => {
 				return this.onRecord(process, record);
 			});
@@ -390,55 +361,7 @@ class STDFDocument extends vscode.Disposable implements vscode.CustomDocument {
             maxY,
             data
         });
-    }
-
+    }		
 }
 
-export class STDFEditorProvider implements vscode.CustomReadonlyEditorProvider<STDFDocument> {
-    public static readonly viewType = 'STDF.Preview.Editor';
-    
-    constructor(private readonly context: vscode.ExtensionContext) {
 
-    }
-
-    openCustomDocument(uri: vscode.Uri, openContext: vscode.CustomDocumentOpenContext, token: vscode.CancellationToken): STDFDocument {
-		const document = new STDFDocument(uri);
-		return document;
-    }
-
-    async resolveCustomEditor(document: STDFDocument, webviewPanel: vscode.WebviewPanel, token: vscode.CancellationToken): Promise<void> {
-        webviewPanel.webview.options = {
-            enableScripts: true
-        };
-        webviewPanel.webview.html = this.getHtml(webviewPanel.webview);
-
-		vscode.window.withProgress({
-            location: vscode.ProgressLocation.Notification,
-            title: 'STDF file analysing..',
-            cancellable: true
-        }, (process, token) => {
-            token.onCancellationRequested((event) => {});
-            return document.analyse(process, webviewPanel);
-        });
-    }
-
-    getHtml(webview: vscode.Webview): string {
-		const scriptUri = webview.asWebviewUri(vscode.Uri.joinPath(this.context.extensionUri, 'grid/view-panel.js'));
-		const gridUri = webview.asWebviewUri(vscode.Uri.joinPath(this.context.extensionUri, 'grid/gridjs.umd.js'));
-		const styleMainUri = webview.asWebviewUri(vscode.Uri.joinPath(this.context.extensionUri, 'grid/mermaid.min.css'));
-
-		return `
-			<!DOCTYPE html>
-			<html lang="en">
-			<head>
-				<link href="${styleMainUri}" rel="stylesheet"/>
-				<script type="text/javascript" src=${gridUri}></script>
-				<script type="text/javascript" src="${scriptUri}"></script>				
-			</head>
-			<body>
-				<div id="container" width="100%"/>
-			</body>
-			</html>
-		`;
-    }
-}

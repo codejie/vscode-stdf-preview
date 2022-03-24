@@ -2,7 +2,7 @@
 	"name": "vscode-stdf-preview",
 	"displayName": "STDF Preview",
 	"description": "vscode extension to preview STDF files.",
-	"version": "1.0.2",
+	"version": "1.0.3",
 	"publisher": "codejie",
 	"repository": {
 		"type": "git",
@@ -15,7 +15,7 @@
 		"Other"
 	],
 	"activationEvents": [
-		"onCustomEditor:STDF.Preview.Editor",
+		"onCustomEditor:stdf.preview.editor",
 		"onCommand:stdf.profile.preview",
 		"onCommand:stdf.map.sbin.preview",
 		"onCommand:stdf.map.param.preview",
@@ -40,7 +40,7 @@
 		],
 		"customEditors": [
 			{
-				"viewType": "STDF.Preview.Editor",
+				"viewType": "stdf.preview.editor",
 				"displayName": "STDF Preview",
 				"selector": [
 					{
@@ -61,21 +61,21 @@
 			},
 			{
 				"command": "stdf.map.sbin.preview",
-				"title": "SBin Map Preview",
+				"title": "SoftBin Map Preview",
 				"category": "STDF",
-				"icon": "$(symbol-keyword)"
+				"icon": "$(gripper)"
 			},
 			{
 				"command": "stdf.map.param.preview",
 				"title": "Parametric Map Preview",
 				"category": "STDF",
-				"icon": "$(symbol-keyword)"
+				"icon": "$(graph)"
 			},
 			{
 				"command": "stdf.records.preview",
 				"title": "Records Preview",
 				"category": "STDF",
-				"icon": "$(symbol-keyword)"
+				"icon": "$(list-unordered)"
 			}
 		],
 		"menus": {
@@ -112,8 +112,23 @@
 				{
 					"command": "stdf.profile.preview",
 					"when": "resourceFilename =~ /.*\\.(std|stdf)/",
-					"group": "navigation"
-				}				
+					"group": "navigation@3"
+				},
+				{
+					"command": "stdf.map.sbin.preview",
+					"when": "resourceFilename =~ /.*\\.(std|stdf)/",
+					"group": "navigation@2"
+				},									
+				{
+					"command": "stdf.map.param.preview",
+					"when": "resourceFilename =~ /.*\\.(std|stdf)/",
+					"group": "navigation@1"
+				},
+				{
+					"command": "stdf.records.preview",
+					"when": "resourceFilename =~ /.*\\.(std|stdf)/",
+					"group": "navigation@4"
+				}
 			]
 		},
 		"submenus": [
@@ -162,6 +177,17 @@
 					"type": "boolean",
 					"default": false,
 					"description": "Show the field original value, not the value escaped according to STDF specification."
+				},
+				"STDF.Preview.defaultPreviewEditor": {
+					"type": "string",
+					"enum": [
+						"Profile Preview",
+						"Records Preview",
+						"SoftBin Map Preview",
+						"Parametric Map Preview"
+					],
+					"default": "Profile Preview",
+					"description": "Indicate the editor to open STDF file."
 				}
 			}
 		}

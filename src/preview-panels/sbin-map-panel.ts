@@ -65,14 +65,12 @@ export default class SBinMapViewPanel extends PreviewPanel {
 	// private passColorInc: number = 0;
 	// private failColorInc: number = 0;
 
-    constructor(context: vscode.ExtensionContext, column: vscode.ViewColumn, status: vscode.StatusBarItem) {
-        super(context, {
+    constructor(context: vscode.ExtensionContext, panel?: vscode.WebviewPanel) {
+        super(context, panel, {
             uri: context.extensionUri,
             name: 'SBin Map Preview',
-            column: column || vscode.ViewColumn.One,
-            type: 'sbin.map.type',
-            resourcePath: ['grid'],
-			status: status
+            type: 'stdf.sbin.map.type',
+            resourcePath: ['grid']
         });
     }
 
@@ -104,7 +102,7 @@ export default class SBinMapViewPanel extends PreviewPanel {
 	async onFile(process: vscode.Progress<ProcessArgs>, filename: string): Promise<void> {
 		this.filename = filename;
 
-		this.viewPanel.title = path.basename(this.filename);
+		this.panel!.title = path.basename(this.filename);
 
 		process.report({
 			increment: (this.processIncrement += 1),

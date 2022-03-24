@@ -18,9 +18,9 @@ export interface PreviewPanelOptions {
     resourcePath: string[],
 
     name: string,
-    column: vscode.ViewColumn,
 
-    status: vscode.StatusBarItem
+    // column: vscode.ViewColumn,
+    // status: vscode.StatusBarItem
 }
 
 export interface ProcessArgs {
@@ -29,48 +29,59 @@ export interface ProcessArgs {
 }
 
 export abstract class PreviewPanel extends EventEmitter {
-
+    // protected context: vscode.ExtensionContext;
+    // protected opts: PreviewPanelOptions;
     protected configuration: Configuration;
-    protected panel: vscode.WebviewPanel;
+    protected status: vscode.StatusBarItem;
+
+    // protected panel: vscode.WebviewPanel;
     protected filename!: string;
 
     protected running: boolean = true;
 
-    constructor(protected context: vscode.ExtensionContext, protected opts: PreviewPanelOptions) {
+    constructor(protected readonly context: vscode.ExtensionContext,
+            protected panel: vscode.WebviewPanel | undefined = undefined,
+            protected readonly opts: PreviewPanelOptions) {
         super();
 
         this.configuration = this.fetchConfiguration(vscode.workspace.getConfiguration('STDF.Preview'));
+        this.status = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 300);
+
+        if (!this.panel) {
+            this.panel = vscode.window.createWebviewPanel(
+                opts.type,
+                opts.name,
+                vscode.ViewColumn.One,
+                this.getOptions()
+            );
+        };
+
+        // this.showStatus();
+
+        this.panel.onDidDispose(() => {
+            // this.hideStatus();
+            this.panel!.dispose();
+        });
+
+        // this.panel.onDidChangeViewState((event) => {
+        //     const actived = event.webviewPanel.visible;
+        //     if (actived) {
+        //         this.onActived();
+        //         this.showStatus();
+        //     } else {
+        //         this.hideStatus();
+        //     }
+        // });
 
         this.on('args', (args) => {
             this.onArgs(args);
         });
 
-        this.panel = vscode.window.createWebviewPanel(
-            opts.type,
-            opts.name,
-            opts.column,
-            this.getOptions()
-        );
-
-        this.panel.onDidDispose(() => {
-            this.hideStatus();
-            this.panel.dispose();
-            // vscode.window.showErrorMessage('CLOSED');
-        });
-
-        this.panel.onDidChangeViewState((event) => {
-            const actived = event.webviewPanel.visible;
-            if (actived) {
-                this.onActived();
-                this.showStatus();
-            } else {
-                this.hideStatus();
-            }
-        });
-
+        this.panel.webview.options = {
+            enableScripts: true
+        };
+        
         this.panel.webview.html = this.getHtml();
-
-        // vscode.commands.executeCommand('setContext', 'current.viewType', opts.type);
     }
 
     private fetchConfiguration(config: vscode.WorkspaceConfiguration): Configuration {
@@ -108,26 +119,26 @@ export abstract class PreviewPanel extends EventEmitter {
         };
     }
 
+    public get viewPanel(): vscode.WebviewPanel {
+        return this.panel!;
+    }
+
+    public stop(): void {
+        this.running = false;
+    }
+
     private hideStatus(): void {
-        if (this.opts.status) {
-            this.opts.status.text = '';
-            this.opts.status.hide();
-        }
+        this.status.text = '';
+        this.status.hide();
     }
 
     private showStatus(): void {
-        if (this.opts.status) {
-            this.opts.status.text = 'STDF';
-            this.opts.status.show();
-        }
-    }
-
-    public get viewPanel(): vscode.WebviewPanel {
-        return this.panel;
+        this.status.text = 'STDF';
+        this.status.show();
     }
 
     protected getResourceUri(file: string): vscode.Uri {
-        return this.panel.webview.asWebviewUri(vscode.Uri.joinPath(this.opts.uri, file));
+        return this.panel!.webview.asWebviewUri(vscode.Uri.joinPath(this.opts.uri, file));
     }
 
     protected readResourceFile(file: string, items: { [key: string]: vscode.Uri}): string {
@@ -154,7 +165,7 @@ export abstract class PreviewPanel extends EventEmitter {
     }
 
     protected postViewMessage(command: string, data?: any): void {
-        this.panel.webview?.postMessage({
+        this.panel!.webview?.postMessage({
             command: command,
             ...data
         });

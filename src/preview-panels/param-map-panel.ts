@@ -172,27 +172,21 @@ export default class ParamMapViewPanel extends PreviewPanel {
 		maxY: Number.MIN_SAFE_INTEGER
 	};
 
-    constructor(context: vscode.ExtensionContext, column: vscode.ViewColumn, status: vscode.StatusBarItem) {
-        super(context, {
+    constructor(context: vscode.ExtensionContext, panel?: vscode.WebviewPanel) {
+        super(context, panel, {
             uri: context.extensionUri,
             name: 'Parametric Map Preview',
-            column: column || vscode.ViewColumn.One,
-            type: 'param.map.type',
-            resourcePath: ['grid'],
-			status: status
+            type: 'stdf.param.map.type',
+            resourcePath: ['grid']
         });
 
-		this.panel.webview.onDidReceiveMessage(msg => {
+		this.panel!.webview.onDidReceiveMessage(msg => {
 			switch(msg.command) {
 				case 'number_changed': {
 					this.onTestNumberChanged(msg.data.value);
 				}
 			}
 		});
-
-		// this.on('event_number_analyse', () => {
-		// 	this.onTestNumberAnalyse();
-		// });
     }
 
     getHtml(): string {
@@ -219,7 +213,7 @@ export default class ParamMapViewPanel extends PreviewPanel {
     async onFile(process: vscode.Progress<ProcessArgs>, filename: string): Promise<void> {
 		this.filename = filename;
 
-		this.viewPanel.title = path.basename(this.filename);
+		this.panel!.title = path.basename(this.filename);
 
 		process.report({
 			increment: (this.processIncrement += 1),
@@ -247,7 +241,6 @@ export default class ParamMapViewPanel extends PreviewPanel {
 
 		input.close();		
 
-		// this.postUpdateTestItems(this.numberData);
 		this.analyseTestItemData();
 		this.onTestNumberChanged(Object.keys(this.numberData)[0]);
 
@@ -255,8 +248,6 @@ export default class ParamMapViewPanel extends PreviewPanel {
 			increment: 100,
 			message: 'process end.'
 		});
-
-		// this.emit('event_number_analyse');
 
 		this.postTestNumberAnalyseData();
 

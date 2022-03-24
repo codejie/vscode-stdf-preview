@@ -17,14 +17,12 @@ export default class RecordsViewPanel extends PreviewPanel {
 		[key: string]: number
 	} = {};
 
-    constructor(context: vscode.ExtensionContext, column: vscode.ViewColumn, status: vscode.StatusBarItem) {
-        super(context, {
+    constructor(context: vscode.ExtensionContext, panel?: vscode.WebviewPanel) {
+        super(context, panel, {
             uri: context.extensionUri,
             name: 'Full Preview',
-            column: column || vscode.ViewColumn.One,
-            type: 'records.type',
-            resourcePath: ['grid'],
-			status: status
+            type: 'stdf.records.type',
+            resourcePath: ['grid']
         });
     }
 
@@ -53,7 +51,7 @@ export default class RecordsViewPanel extends PreviewPanel {
 	async onFile(process: vscode.Progress<ProcessArgs>, filename: string): Promise<void> {
 		this.filename = filename;
 
-		this.viewPanel.title = path.basename(this.filename);
+		this.panel!.title = path.basename(this.filename);
 
 		process.report({
 			increment: (this.processIncrement += 1),
