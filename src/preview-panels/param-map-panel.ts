@@ -887,6 +887,7 @@ export default class ParamMapViewPanel extends PreviewPanel {
 		});
 
 		const data = {
+			columns: this.configuration.thumbnailColumns,
 			grid: this.configuration.drawBackgroundGrid,
 			maxX: Math.round(this.dieInfo.maxX / GAP_EXTRACT),
 			maxY: Math.round(this.dieInfo.maxY / GAP_EXTRACT),
@@ -928,6 +929,7 @@ export default class ParamMapViewPanel extends PreviewPanel {
 
 		return ret;
 	}
+
 	private makeNumberResultIndex(result: number, gap: number, item: TestNumberData): string {
 		if (Number.isNaN(result)) {
 			return '+1';
@@ -941,9 +943,5 @@ export default class ParamMapViewPanel extends PreviewPanel {
 				index = GAP_TOTAL - 1;
 			return String.fromCharCode(0x41 + index);
 		}	
-	}
-
-	
+	}	
 }
-
-

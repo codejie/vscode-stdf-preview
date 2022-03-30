@@ -9,7 +9,8 @@ export interface Configuration {
     showDescription: boolean,
     drawBackgroundGrid?: boolean,
     useFieldOriginalValue: boolean,
-    recordsLimited: number
+    recordsLimited: number,
+    thumbnailColumns: number
 }
 
 export interface PreviewPanelOptions {
@@ -97,7 +98,8 @@ export abstract class PreviewPanel extends EventEmitter {
             showDescription: config.get('showFieldDescription') || false,
             drawBackgroundGrid: config.get('drawBackgroundGrid'),
             useFieldOriginalValue: config.get('useFieldOriginalValue') || false,
-            recordsLimited: config.get('recordsLimited') || 10
+            recordsLimited: config.get('recordsLimited') || 10,
+            thumbnailColumns: config.get('thumbnailColumns') || 5
         };
     
         return ret;

@@ -188,6 +188,12 @@
 					],
 					"default": "Profile Preview",
 					"description": "Indicate the editor to open STDF file."
+				},
+				"STDF.Preview.thumbnailColumns": {
+					"type":"integer",
+					"enum": [4, 5, 8, 10, 12],
+					"default": 5,
+					"description": "Indicate the thumbnail number of TestNumber Map in one row."
 				}
 			}
 		}

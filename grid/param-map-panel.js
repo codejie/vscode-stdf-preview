@@ -255,22 +255,31 @@ function drawNumberChart(id, opts, data) {
 function onNumberAnalyseMap(id, data) {
   let row = null;
   for (let i = 0; i < data.items.length; ++ i) {
-    if (i % 5 === 0) {
-      row = createNumberAnalyseMapRowContainer(id, i);
+    if (i % data.columns === 0) {
+      row = createNumberAnalyseMapRowContainer(id, i, data.columns);
     }
     const canvasId = createNumberAnalyseMapItemContainer(row, i, data.items[i]);
-    // console.log('item = ' + canvasId);
     // if (data.items[i].number === 33000007 && data.items[i].text === 'OS_TEST P4 JUDGE_V_PPMU')
       drawNumberAnalyseMap(canvasId, data.grid, data.maxX, data.maxY, data.items[i]);
   }
 }
 
-function createNumberAnalyseMapRowContainer(root, index) {
+function createNumberAnalyseMapRowContainer(root, index, columns) {
 
   const id = `analyse-map-row-${index}`;
   const div = document.createElement('div');
-  div.setAttribute("class", "analyse-map-row");
+  // div.setAttribute("class", "analyse-map-row");
   div.setAttribute("id", id);
+  let style = "display: grid; grid-template-columns:";
+  const width = 100 / columns;
+  for (let i = 0; i < columns; ++ i) {
+    style += ` ${width.toFixed(1)}%`;
+  }
+  style += ';';
+
+  console.log('style = ' + style)
+
+  div.setAttribute("style", style);
     
   document.getElementById(root).appendChild(div);
 
