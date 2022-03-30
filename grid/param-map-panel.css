@@ -104,4 +104,22 @@
     border-bottom: 1px solid;
 }
 
+.analyse-map-row {
+    display: grid;
+    grid-template-columns: 20% 20% 20% 20% 20%;    
+}
+
+.analyse-map-item {
+    height: auto;
+    width: auto;
+    border: 1px solid grey
+}
+
+.analyse-map-number {
+    padding-left: 2px;
+}
+
+.analyse-map-text {
+    padding-left: 2px;
+}
 

@@ -154,6 +154,7 @@ const GAP_COLORS: string[] = [
 ];
 
 const GAP_TOTAL: number = 10;
+const GAP_EXTRACT: number = 3;
 
 export default class ParamMapViewPanel extends PreviewPanel {
     private processIncrement: number = 0;
@@ -250,6 +251,7 @@ export default class ParamMapViewPanel extends PreviewPanel {
 		});
 
 		this.postTestNumberAnalyseData();
+		this.postTestNumberAnalyseMap();
 
 		return Promise.resolve();
     }
@@ -830,7 +832,7 @@ export default class ParamMapViewPanel extends PreviewPanel {
 		});
 	}
 
-	postTestNumberAnalyseData() {
+	private postTestNumberAnalyseData() {
 		const data: string[][] = [];
 
 		data.push(['No', 'Number', 'Text', 'Pass', 'Average', 'Devation',
@@ -869,6 +871,79 @@ export default class ParamMapViewPanel extends PreviewPanel {
 				data: data
 			}
 		});
-	}	
+	}
+	
+	private postTestNumberAnalyseMap() {
+		const items: any[] = [];
+
+		Object.keys(this.numberData).forEach(key => {
+			const item = this.numberData[key];
+			items.push({
+				number: item.number,
+				text: item.text,
+				opts: this.makeNumberAnalyseMpaItemOpts(item),
+				data: this.makeNumberAnalyseMapItemData(item)
+			});
+		});
+
+		const data = {
+			grid: this.configuration.drawBackgroundGrid,
+			maxX: Math.round(this.dieInfo.maxX / GAP_EXTRACT),
+			maxY: Math.round(this.dieInfo.maxY / GAP_EXTRACT),
+			items: items
+		};
+
+		this.postViewMessage('update_analyse_map', {
+			container: 'analyse-map-container',
+			data: data
+		});
+	}
+
+	private makeNumberAnalyseMpaItemOpts(item: TestNumberData): any {
+		const ret = {
+			gap: (item.max - item.min) / GAP_TOTAL,
+			colors: {
+				'+1': GAP_COLORS[0],
+				'+2': GAP_COLORS[1],
+				'+3': GAP_COLORS[2]				
+			}
+		};
+	
+		for (let i = 0; i < GAP_TOTAL; ++ i) {
+			(<any>ret.colors)[String.fromCharCode(0x41 + i)] = GAP_COLORS[3 + i];
+		}
+		return ret;		
+	}
+
+	private makeNumberAnalyseMapItemData(item: TestNumberData): any[] {
+		const ret: any[] = [];
+
+		const gap = (item.max - item.min) / GAP_TOTAL;
+
+		item.data.forEach(d => {
+			if ((d[0] % GAP_EXTRACT === 0) && (d[1] % GAP_EXTRACT === 0)) {
+				ret.push([Math.floor(d[0]/GAP_EXTRACT), Math.floor(d[1]/GAP_EXTRACT), this.makeNumberResultIndex(d[4], gap, item)]);
+			}
+		});
+
+		return ret;
+	}
+	private makeNumberResultIndex(result: number, gap: number, item: TestNumberData): string {
+		if (Number.isNaN(result)) {
+			return '+1';
+		} else if (result < item.low) {
+			return '+2';
+		} else if (result >item.high) {
+			return '+3';
+		} else {
+			let index =  Math.floor((result - item.min) / gap);
+			if (index === GAP_TOTAL)
+				index = GAP_TOTAL - 1;
+			return String.fromCharCode(0x41 + index);
+		}	
+	}
+
 	
 }
+
+

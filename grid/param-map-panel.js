@@ -22,6 +22,10 @@ window.addEventListener('message', (event) => {
         onNumberAnalyseData(event.data.container, event.data.grid);
         break;
       }
+      case 'update_analyse_map': {
+        onNumberAnalyseMap(event.data.container, event.data.data);
+        break;
+      }
   }
 });
 
@@ -104,7 +108,6 @@ function onUpdateNumberMapChart(container, data) {
 }
 
 function onNumberAnalyseData(container, data) {
-  console.log(data);
   new gridjs.Grid({
         ...data,
         style: {
@@ -116,8 +119,6 @@ function onNumberAnalyseData(container, data) {
 }
 
 function onNumberChange(value) {
-  // console.log(value);
-
   vscode.postMessage({
     command: 'number_changed',
     data: {
@@ -243,10 +244,105 @@ function drawNumberChart(id, opts, data) {
     numberChart.options = data.options;
     numberChart.update();
   } else {
-  numberChart = new Chart(ctx, {
-    type: 'bar',
-    data: data.data,
-    options: data.options
-  });
+    numberChart = new Chart(ctx, {
+      type: 'bar',
+      data: data.data,
+      options: data.options
+    });
+  }
 }
+
+function onNumberAnalyseMap(id, data) {
+  let row = null;
+  for (let i = 0; i < data.items.length; ++ i) {
+    if (i % 5 === 0) {
+      row = createNumberAnalyseMapRowContainer(id, i);
+    }
+    const canvasId = createNumberAnalyseMapItemContainer(row, i, data.items[i]);
+    // console.log('item = ' + canvasId);
+    // if (data.items[i].number === 33000007 && data.items[i].text === 'OS_TEST P4 JUDGE_V_PPMU')
+      drawNumberAnalyseMap(canvasId, data.grid, data.maxX, data.maxY, data.items[i]);
+  }
+}
+
+function createNumberAnalyseMapRowContainer(root, index) {
+
+  const id = `analyse-map-row-${index}`;
+  const div = document.createElement('div');
+  div.setAttribute("class", "analyse-map-row");
+  div.setAttribute("id", id);
+    
+  document.getElementById(root).appendChild(div);
+
+  return id;
+}
+
+function createNumberAnalyseMapItemContainer(root, index, data) {
+  const div = document.createElement('div');
+  div.setAttribute("class", "analyse-map-item");
+  
+  // const label = `test-map-${index}`;
+  const test = document.createElement('div');
+  test.setAttribute("class", "analyse-map-number");
+  test.innerText = data.number;
+  div.appendChild(test);
+
+  const num = document.createElement('div');
+  num.setAttribute("class", "analyse-map-text");
+  num.innerText = data.text;
+  div.appendChild(num);
+
+  const id = `test-map-${index}`;
+  const canvas = document.createElement('canvas');
+  canvas.setAttribute("id", id);
+  canvas.setAttribute("class", "analyse-map-canvas");
+  div.appendChild(canvas);
+
+  document.getElementById(root).appendChild(div);
+
+  return id;
+}
+
+function drawNumberAnalyseMap(id, grid, maxX, maxY, data) {
+  const canvas = document.getElementById(id);    
+  const ctx = canvas.getContext('2d');
+
+  canvas.width  = 200;//window.innerWidth;
+  canvas.height = 200;//width;//window.innerHeight;
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  const width = Math.min(canvas.width, canvas.height);
+  const columns = Math.max(maxX, maxY);
+
+  const gap = width / columns;
+  // console.log('gap = ' + gap);
+  // grids
+  if (grid) {
+      ctx.strokeStyle = 'grey';
+      ctx.lineWidth = 1;
+
+      ctx.beginPath();
+      for (i = 0; i < (columns + 1); ++ i) {
+          // ctx.beginPath();
+          ctx.moveTo(0, i * gap);
+          ctx.lineTo(width, i * gap);
+          ctx.stroke();
+
+          // ctx.beginPath();
+          ctx.moveTo(i * gap, 0);
+          ctx.lineTo(i * gap, width);
+          ctx.stroke();
+      }    
+  }
+  // rectangles
+  // ctx.beginPath();
+  const colors = data.opts.colors;
+
+  data.data.forEach(ele => {
+      ctx.beginPath();
+      ctx.fillStyle = colors[ele[2]];
+      ctx.fillRect(ele[0] * gap + 1, ele[1] * gap + 1, gap - 1, gap - 1);
+  });
+  
 }
