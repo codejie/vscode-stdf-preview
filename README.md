@@ -4,18 +4,18 @@ VSCode extension to preview STDF files.
 
 ## Features
 - Preview profile context of STDF file
-![](./profile_screen.png)
+![](https://github.com/codejie/vscode-stdf-preview/profile_screen.png)
 
 - Preview any record detail of STDF file
-![](./records_screen.png)
+![](https://github.com/codejie/vscode-stdf-preview/records_screen.png)
 
 - Preview SoftBin P/F Map of STDF file
-![](./map_screen.png)
+![](https://github.com/codejie/vscode-stdf-preview/map_screen.png)
 
 - Preview Parametric Map of STDF file
-![](./param_screen.png)
-![](./param1_screen.png)
-![](./param2_screen.png)
+![](https://github.com/codejie/vscode-stdf-preview/param_screen.png)
+![](https://github.com/codejie/vscode-stdf-preview/param1_screen.png)
+![](https://github.com/codejie/vscode-stdf-preview/param2_screen.png)
 
 ## Usage
 Right click on a STDF file (.std | .stdf) in explorer:
