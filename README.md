@@ -4,18 +4,18 @@ VSCode extension to preview STDF files.
 
 ## Features
 - Preview profile context of STDF file
-![](https://github.com/codejie/vscode-stdf-preview/profile_screen.png)
+![](https://raw.githubusercontent.com/codejie/vscode-stdf-preview/master/profile_screen.png)
 
 - Preview any record detail of STDF file
-![](https://github.com/codejie/vscode-stdf-preview/records_screen.png)
+![](https://raw.githubusercontent.com/codejie/vscode-stdf-preview/master/records_screen.png)
 
 - Preview SoftBin P/F Map of STDF file
-![](https://github.com/codejie/vscode-stdf-preview/map_screen.png)
+![](https://raw.githubusercontent.com/codejie/vscode-stdf-preview/master/map_screen.png)
 
 - Preview Parametric Map of STDF file
-![](https://github.com/codejie/vscode-stdf-preview/param_screen.png)
-![](https://github.com/codejie/vscode-stdf-preview/param1_screen.png)
-![](https://github.com/codejie/vscode-stdf-preview/param2_screen.png)
+![](https://raw.githubusercontent.com/codejie/vscode-stdf-preview/master/param_screen.png)
+![](https://raw.githubusercontent.com/codejie/vscode-stdf-preview/master/param1_screen.png)
+![](https://raw.githubusercontent.com/codejie/vscode-stdf-preview/master/param2_screen.png)
 
 ## Usage
 Right click on a STDF file (.std | .stdf) in explorer:
@@ -25,7 +25,7 @@ Right click on a STDF file (.std | .stdf) in explorer:
 4. `Parametric Map Preview` to view the Parametric Test Restlt Map
 
 ## Configuration
-![](./configuration_screen.png)
+![](https://raw.githubusercontent.com/codejie/vscode-stdf-preview/master/configuration_screen.png)
 
 1. `STDF.Preview: Draw Background Grid`: use in `Map Preview`, set True to be shown the grid of SoftBin P/F Map, default is False
 2. `STDF.Preview: Not Show Missing Field`: use in `Record Preview`, while True, the fields will NOT be shown if their values was missing in STDF file, default is False
